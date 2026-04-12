@@ -1,0 +1,63 @@
+<div class="auth-container">
+  <div class="auth-card">
+
+    <div class="auth-header">
+      <div class="logo">
+        <span class="logo-icon">◈</span>
+        <span class="logo-text">PortfolioTracker</span>
+      </div>
+      <h1>{{ isLogin ? 'Bienvenido' : 'Crear cuenta' }}</h1>
+      <p>{{ isLogin ? 'Accede a tu portfolio' : 'Empieza a gestionar tus activos' }}</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="auth-form">
+
+      <div class="field">
+        <label>Email</label>
+        <input
+          type="email"
+          formControlName="email"
+          placeholder="tu@email.com"
+          autocomplete="email"
+        />
+        @if (form.get('email')?.invalid && form.get('email')?.touched) {
+          <span class="field-error">Email no válido</span>
+        }
+      </div>
+
+      <div class="field">
+        <label>Contraseña</label>
+        <input
+          type="password"
+          formControlName="password"
+          placeholder="Mínimo 8 caracteres"
+          autocomplete="current-password"
+        />
+        @if (form.get('password')?.invalid && form.get('password')?.touched) {
+          <span class="field-error">Mínimo 8 caracteres</span>
+        }
+      </div>
+
+      @if (errorMessage) {
+        <div class="error-banner">{{ errorMessage }}</div>
+      }
+
+      <button type="submit" class="btn-primary" [disabled]="isLoading">
+        @if (isLoading) {
+          <span>Cargando...</span>
+        } @else {
+          <span>{{ isLogin ? 'Entrar' : 'Registrarse' }}</span>
+        }
+      </button>
+
+    </form>
+
+    <div class="auth-footer">
+      <span>{{ isLogin ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?' }}</span>
+      <button class="btn-link" (click)="toggleMode()">
+        {{ isLogin ? 'Regístrate' : 'Inicia sesión' }}
+      </button>
+    </div>
+
+  </div>
+</div>

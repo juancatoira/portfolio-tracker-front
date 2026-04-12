@@ -1,0 +1,54 @@
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+$theme: mat.define-theme((
+  color: (
+    theme-type: dark,
+    primary: mat.$cyan-palette,
+  ),
+  typography: (
+    brand-family: 'Inter, sans-serif',
+  )
+));
+
+:root {
+  @include mat.all-component-themes($theme);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #0a0a0f;
+  color: #e2e8f0;
+}
+
+:root {
+  --color-primary: #06b6d4;
+  --color-primary-dim: rgba(6, 182, 212, 0.1);
+  --color-success: #10b981;
+  --color-success-dim: rgba(16, 185, 129, 0.1);
+  --color-danger: #f43f5e;
+  --color-danger-dim: rgba(244, 63, 94, 0.1);
+  --color-text-primary: #e2e8f0;
+  --color-text-secondary: #64748b;
+  --color-text-muted: #334155;
+  --color-border: #1e293b;
+  --color-border-bright: #2d3f55;
+  --color-surface: #0f1117;
+  --color-surface-raised: #151821;
+  --color-background: #0a0a0f;
+  --border-radius: 12px;
+  --border-radius-sm: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 24px rgba(0,0,0,0.3);
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--color-background); }
+::-webkit-scrollbar-thumb { background: var(--color-border-bright); border-radius: 2px; }

@@ -28,4 +28,12 @@ export class PortfolioService {
   deleteTransaction(id: string) {
     return this.http.delete(`${this.apiUrl}/transactions/${id}`);
   }
+
+  refreshPrices() {
+    return this.http.post<any>(`${this.apiUrl}/portfolio/prices/refresh`, {});
+  }
+
+  getLastUpdated() {
+    return this.http.get<any>(`${this.apiUrl}/portfolio/prices/last-updated`);
+  }
 }

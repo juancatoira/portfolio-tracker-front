@@ -19,6 +19,8 @@ export class Dashboard implements OnInit {
 
   positions = signal<Position[]>([]);
   isLoading = signal(true);
+  lastUpdated = signal<string>('');
+  isRefreshing = signal(false);
 
   totalValue = computed(() =>
     this.positions().reduce((sum, p) => sum + p.currentValueUsd, 0)
@@ -40,6 +42,8 @@ export class Dashboard implements OnInit {
 
   ngOnInit() {
     this.loadPositions();
+    this.loadPositions();
+    this.loadLastUpdated();
   }
 
   loadPositions() {
@@ -53,6 +57,31 @@ export class Dashboard implements OnInit {
     });
   }
 
+  loadLastUpdated() {
+    this.portfolioService.getLastUpdated().subscribe({
+      next: (res) => {
+        if (res.lastUpdated !== 'never') {
+          const date = new Date(res.lastUpdated);
+          this.lastUpdated.set(date.toLocaleString('es-ES'));
+        } else {
+          this.lastUpdated.set('Nunca');
+        }
+      }
+    });
+  }
+
+  refreshPrices() {
+    this.isRefreshing.set(true);
+    this.portfolioService.refreshPrices().subscribe({
+      next: () => {
+        this.loadPositions();
+        this.loadLastUpdated();
+        this.isRefreshing.set(false);
+      },
+      error: () => this.isRefreshing.set(false)
+    });
+  }
+  
   navigateTo(route: string) {
     this.router.navigate([route]);
   }

@@ -4,11 +4,13 @@ import { Router } from '@angular/router';
 import { PortfolioService } from '../../services/portfolio';
 import { AuthService } from '../../services/auth';
 import { Position } from '../../models/transaction.models';
+import { NewTransactionComponent } from '../new-transaction/new-transaction';
+
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, NewTransactionComponent],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })
@@ -21,6 +23,8 @@ export class Dashboard implements OnInit {
   isLoading = signal(true);
   lastUpdated = signal<string>('');
   isRefreshing = signal(false);
+  showNewTransaction = signal(false);
+
 
   totalValue = computed(() =>
     this.positions().reduce((sum, p) => sum + p.currentValueUsd, 0)
@@ -104,5 +108,13 @@ export class Dashboard implements OnInit {
 
   isPnlPositive(value: number): boolean {
     return value >= 0;
+  }
+  openNewTransaction() {
+    this.showNewTransaction.set(true);
+  }
+
+  onModalClosed(refresh: boolean) {
+    this.showNewTransaction.set(false);
+    if (refresh) this.loadPositions();
   }
 }

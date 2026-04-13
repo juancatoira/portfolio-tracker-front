@@ -1,0 +1,115 @@
+<div class="modal-overlay" (click)="close()">
+  <div class="modal" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <h2>Nueva operación</h2>
+      <button class="btn-close" (click)="close()">✕</button>
+    </div>
+
+    <div class="modal-body">
+
+      <!-- Selector de tipo -->
+      <div class="type-selector">
+        <button
+          class="type-btn"
+          [class.active-buy]="form.get('type')?.value === 'BUY'"
+          (click)="form.get('type')?.setValue('BUY')">
+          Compra
+        </button>
+        <button
+          class="type-btn"
+          [class.active-sell]="form.get('type')?.value === 'SELL'"
+          (click)="form.get('type')?.setValue('SELL')">
+          Venta
+        </button>
+        <button
+          class="type-btn"
+          [class.active-manual]="form.get('type')?.value === 'MANUAL'"
+          (click)="form.get('type')?.setValue('MANUAL')">
+          Manual
+        </button>
+      </div>
+
+      <!-- Selector de moneda -->
+      <div class="field">
+        <label>Moneda</label>
+
+        @if (selectedCoin()) {
+          <div class="selected-coin">
+            <img [src]="selectedCoin()!.imageUrl" [alt]="selectedCoin()!.name" class="coin-image"/>
+            <span class="coin-symbol">{{ selectedCoin()!.symbol }}</span>
+            <span class="coin-name">{{ selectedCoin()!.name }}</span>
+            <button class="btn-clear" (click)="clearCoin()">✕</button>
+          </div>
+        } @else {
+          <div class="coin-selector">
+            <input
+              type="text"
+              [value]="searchQuery()"
+              (input)="onSearchInput($event)"
+              (focus)="showDropdown.set(true)"
+              placeholder="Buscar moneda..."
+            />
+            @if (showDropdown()) {
+              <div class="coin-dropdown">
+                @if (isSearching()) {
+                  <div class="dropdown-loading">Buscando...</div>
+                } @else {
+                  @if (searchQuery().length === 0) {
+                    <div class="dropdown-label">Top 10</div>
+                  }
+                  @for (coin of displayedCoins(); track coin.id) {
+                    <div class="dropdown-item" (click)="selectCoin(coin)">
+                      <img [src]="coin.imageUrl" [alt]="coin.name" class="coin-image"/>
+                      <span class="coin-symbol">{{ coin.symbol }}</span>
+                      <span class="coin-name">{{ coin.name }}</span>
+                      @if (coin.marketCapRank) {
+                        <span class="coin-rank">#{{ coin.marketCapRank }}</span>
+                      }
+                    </div>
+                  }
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="submit()">
+
+        <div class="fields-row">
+          <div class="field">
+            <label>Cantidad</label>
+            <input type="number" formControlName="quantity" placeholder="0.00" step="0.00000001"/>
+          </div>
+          <div class="field">
+            <label>Precio (USD)</label>
+            <input type="number" formControlName="priceUsd" placeholder="0.00" step="0.01"/>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Fecha</label>
+          <input type="datetime-local" formControlName="date"/>
+        </div>
+
+        <div class="field">
+          <label>Notas <span class="optional">(opcional)</span></label>
+          <input type="text" formControlName="notes" placeholder="Ej: compra DCA mensual"/>
+        </div>
+
+        @if (errorMessage()) {
+          <div class="error-banner">{{ errorMessage() }}</div>
+        }
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" (click)="close()">Cancelar</button>
+          <button type="submit" class="btn-primary" [disabled]="isSubmitting()">
+            {{ isSubmitting() ? 'Guardando...' : 'Guardar operación' }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>

@@ -36,9 +36,9 @@
             {{ isRefreshing() ? 'Actualizando...' : '↻ Actualizar precios' }}
           </button>
         </div>
-        <button class="btn-primary" (click)="navigateTo('/portfolio')">
-          + Nueva operación
-        </button>
+          <button class="btn-primary" (click)="openNewTransaction()">
+            + Nueva operación
+          </button>
       </div>
     </div>
 
@@ -148,4 +148,8 @@
     </footer>
 
   </main>
+  
+  @if (showNewTransaction()) {
+    <app-new-transaction (closed)="onModalClosed($event)" />
+  }
 </div>

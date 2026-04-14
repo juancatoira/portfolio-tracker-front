@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Position, Transaction, TransactionRequest, ManualPositionRequest } from '../models/transaction.models';
 import { environment } from '../../environments/environment';
+import { Position, Transaction, TransactionRequest, ManualPositionRequest } from '../models/transaction.models';
+import { Snapshot, NewsItem } from '../models/dashboard.models';
 
 @Injectable({ providedIn: 'root' })
 export class PortfolioService {
@@ -35,5 +36,13 @@ export class PortfolioService {
 
   getLastUpdated() {
     return this.http.get<any>(`${this.apiUrl}/portfolio/prices/last-updated`);
+  }
+  
+  getSnapshots(days: number = 30) {
+    return this.http.get<Snapshot[]>(`${this.apiUrl}/dashboard/snapshots?days=${days}`);
+  }
+
+  getNews() {
+    return this.http.get<NewsItem[]>(`${this.apiUrl}/dashboard/news`);
   }
 }

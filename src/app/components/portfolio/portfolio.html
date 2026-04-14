@@ -1,1 +1,180 @@
-<p>portfolio works!</p>
+<div class="portfolio-page">
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <span class="logo-icon">◈</span>
+      <span class="logo-text">PortfolioTracker</span>
+    </div>
+    <div class="navbar-links">
+      <button class="nav-link" (click)="navigateTo('/dashboard')">Dashboard</button>
+      <button class="nav-link active">Portfolio</button>
+      <button class="nav-link" (click)="navigateTo('/watchlist')">Watchlist</button>
+    </div>
+    <div class="navbar-user">
+      @if (currentUser$ | async; as user) {
+        <span class="user-email">{{ user.email }}</span>
+      }
+      <button class="btn-logout" (click)="logout()">Salir</button>
+    </div>
+  </nav>
+
+  <main class="main-content">
+
+    <div class="page-header">
+      <h1>Portfolio</h1>
+      <button class="btn-primary" (click)="showNewTransaction.set(true)">
+        + Nueva operación
+      </button>
+    </div>
+
+    @if (isLoading()) {
+      <div class="loading">Cargando...</div>
+    } @else {
+
+      <!-- Gráfico -->
+      @if (positions().length > 0) {
+        <div class="chart-section">
+          <h2 class="section-title">Distribución</h2>
+          <div class="chart-container">
+            <canvas #chartCanvas></canvas>
+          </div>
+        </div>
+      }
+
+      <!-- Posiciones -->
+      <div class="section">
+        <h2 class="section-title">Posiciones</h2>
+        @if (positions().length === 0) {
+          <div class="empty-state">
+            <p>No tienes posiciones todavía.</p>
+            <button class="btn-primary" (click)="showNewTransaction.set(true)">
+              Añadir primera posición
+            </button>
+          </div>
+        } @else {
+          <div class="positions-table">
+            <div class="table-header">
+              <span>Activo</span>
+              <span>Cantidad</span>
+              <span>Precio medio</span>
+              <span>Precio actual</span>
+              <span>Valor</span>
+              <span>P&L</span>
+              <span></span>
+            </div>
+            @for (position of positions(); track position.coinId) {
+              <div class="table-row">
+                <div class="coin-identity">
+                  <img [src]="position.imageUrl" [alt]="position.coinName" class="coin-image" onerror="this.style.display='none'"/>
+                  <div>
+                    <span class="coin-symbol">{{ position.coinSymbol }}</span>
+                    <span class="coin-name">{{ position.coinName }}</span>
+                  </div>
+                </div>
+                <span class="cell">{{ position.quantity.toFixed(6) }}</span>
+                <span class="cell">{{ formatCurrency(position.averagePriceUsd) }}</span>
+                <span class="cell">{{ formatCurrency(position.currentPriceUsd) }}</span>
+                <span class="cell">{{ formatCurrency(position.currentValueUsd) }}</span>
+                <div class="cell pnl-cell">
+                  <span [class.positive]="isPnlPositive(position.pnlUsd)" [class.negative]="!isPnlPositive(position.pnlUsd)">
+                    {{ formatCurrency(position.pnlUsd) }}
+                  </span>
+                  <span class="pnl-percent" [class.positive]="isPnlPositive(position.pnlPercent)" [class.negative]="!isPnlPositive(position.pnlPercent)">
+                    {{ position.pnlPercent.toFixed(2) }}%
+                  </span>
+                </div>
+                <div class="cell actions-cell">
+                  <button class="btn-menu" (click)="toggleMenu(position.coinId)">⋯</button>
+                  @if (openMenuId() === position.coinId) {
+                    <div class="dropdown-menu">
+                      <button (click)="setFilter(position.coinId); openMenuId.set(null)">
+                        Ver transacciones
+                      </button>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Historial de transacciones -->
+      <div class="section">
+        <div class="section-header">
+          <h2 class="section-title">Historial</h2>
+          <div class="filter-bar">
+            @if (filterCoinId()) {
+              <span class="filter-tag">
+                {{ filterCoinId() }}
+                <button (click)="setFilter(null)">✕</button>
+              </span>
+            }
+            @for (position of positions(); track position.coinId) {
+              <button
+                class="filter-btn"
+                [class.active]="filterCoinId() === position.coinId"
+                (click)="setFilter(filterCoinId() === position.coinId ? null : position.coinId)">
+                {{ position.coinSymbol }}
+              </button>
+            }
+          </div>
+        </div>
+
+        @if (filteredTransactions().length === 0) {
+          <div class="empty-state">
+            <p>No hay transacciones.</p>
+          </div>
+        } @else {
+          <div class="transactions-table">
+            <div class="table-header">
+              <span>Tipo</span>
+              <span>Activo</span>
+              <span>Cantidad</span>
+              <span>Precio</span>
+              <span>Total</span>
+              <span>Fecha</span>
+              <span></span>
+            </div>
+            @for (tx of filteredTransactions(); track tx.id) {
+              <div class="table-row">
+                <span class="badge" [class]="typeClass(tx.type)">{{ typeLabel(tx.type) }}</span>
+                <div class="coin-identity">
+                  <span class="coin-symbol">{{ tx.coinSymbol }}</span>
+                  <span class="coin-name">{{ tx.coinName }}</span>
+                </div>
+                <span class="cell">{{ tx.quantity }}</span>
+                <span class="cell">{{ formatCurrency(tx.priceUsd) }}</span>
+                <span class="cell">{{ formatCurrency(tx.quantity * tx.priceUsd) }}</span>
+                <span class="cell">{{ formatDate(tx.date) }}</span>
+                <div class="cell actions-cell">
+                  <button class="btn-menu" (click)="toggleMenu(tx.id)">⋯</button>
+                  @if (openMenuId() === tx.id) {
+                    <div class="dropdown-menu">
+                      <button class="danger" (click)="deleteTransaction(tx.id)">
+                        Eliminar
+                      </button>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Powered by CoinGecko -->
+      <footer class="coingecko-footer">
+        <span>Datos de mercado proporcionados por</span>
+        <a href="https://www.coingecko.com" target="_blank" rel="noopener">
+          <img src="https://static.coingecko.com/s/coingecko-logo-8903d34ce19ca4be1c81f0db30e924154750d2fbe6378d7e3c7c2b1b5df9f86.png" alt="CoinGecko" height="20"/>
+        </a>
+      </footer>
+    }
+  </main>
+
+  @if (showNewTransaction()) {
+    <app-new-transaction (closed)="onModalClosed($event)" />
+  }
+</div>

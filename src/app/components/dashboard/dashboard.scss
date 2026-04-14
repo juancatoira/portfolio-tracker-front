@@ -23,20 +23,11 @@
     flex-shrink: 0;
     margin-right: 1rem;
 
-    .logo-icon {
-      font-size: 1.2rem;
-      color: var(--color-primary);
-    }
-
+    .logo-icon { font-size: 1.2rem; color: var(--color-primary); }
     .logo-text {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--color-text-primary);
-      letter-spacing: -0.02em;
-
-      @media (max-width: 480px) {
-        display: none;
-      }
+      font-size: 1rem; font-weight: 600;
+      color: var(--color-text-primary); letter-spacing: -0.02em;
+      @media (max-width: 480px) { display: none; }
     }
   }
 
@@ -45,70 +36,41 @@
     gap: 0.25rem;
 
     .nav-link {
-      background: none;
-      border: none;
+      background: none; border: none;
       color: var(--color-text-secondary);
-      font-size: 0.875rem;
-      font-family: 'Inter', sans-serif;
+      font-size: 0.875rem; font-family: 'Inter', sans-serif;
       padding: 0.5rem 0.75rem;
       border-radius: var(--border-radius-sm);
-      cursor: pointer;
-      transition: all 0.15s;
+      cursor: pointer; transition: all 0.15s;
 
-      @media (max-width: 480px) {
-        padding: 0.5rem 0.5rem;
-        font-size: 0.8rem;
-      }
+      @media (max-width: 480px) { padding: 0.5rem 0.5rem; font-size: 0.8rem; }
 
-      &:hover {
-        color: var(--color-text-primary);
-        background: var(--color-border);
-      }
-
-      &.active {
-        color: var(--color-primary);
-        background: var(--color-primary-dim);
-      }
+      &:hover { color: var(--color-text-primary); background: var(--color-border); }
+      &.active { color: var(--color-primary); background: var(--color-primary-dim); }
     }
   }
 
- .navbar-user {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex-shrink: 0;
+  .navbar-user {
+    display: flex; align-items: center; gap: 1rem; flex-shrink: 0;
 
     .user-email {
-      font-size: 0.8rem;
-      color: var(--color-text-secondary);
-
-      @media (max-width: 640px) {
-        display: none;
-      }
+      font-size: 0.8rem; color: var(--color-text-secondary);
+      @media (max-width: 640px) { display: none; }
     }
 
     .btn-logout {
-      background: none;
-      border: 1px solid var(--color-border);
+      background: none; border: 1px solid var(--color-border);
       color: var(--color-text-secondary);
-      font-size: 0.8rem;
-      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem; font-family: 'Inter', sans-serif;
       padding: 0.35rem 0.75rem;
       border-radius: var(--border-radius-sm);
-      cursor: pointer;
-      transition: all 0.15s;
-      white-space: nowrap;
+      cursor: pointer; transition: all 0.15s; white-space: nowrap;
 
-      &:hover {
-        border-color: var(--color-danger);
-        color: var(--color-danger);
-      }
+      &:hover { border-color: var(--color-danger); color: var(--color-danger); }
     }
   }
 
-  @media (max-width: 480px) {
-    padding: 0 1rem;
-  }
+  @media (max-width: 480px) { padding: 0 1rem; }
 }
 
 // Main
@@ -126,17 +88,12 @@
   gap: 1rem;
 
   h1 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--color-text-primary);
-    letter-spacing: -0.03em;
+    font-size: 1.5rem; font-weight: 700;
+    color: var(--color-text-primary); letter-spacing: -0.03em;
     flex-shrink: 0;
   }
 
-  @media (max-width: 640px) {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+  @media (max-width: 640px) { flex-direction: column; align-items: flex-start; }
 }
 
 .header-actions {
@@ -145,10 +102,7 @@
   gap: 1rem;
   flex-wrap: wrap;
 
-  @media (max-width: 640px) {
-    width: 100%;
-    justify-content: space-between;
-  }
+  @media (max-width: 640px) { width: 100%; justify-content: space-between; }
 }
 
 .last-updated {
@@ -157,50 +111,29 @@
   gap: 0.75rem;
   flex-wrap: wrap;
 
-  span {
-    font-size: 0.75rem;
-    color: var(--color-text-secondary);
-    white-space: nowrap;
-  }
+  span { font-size: 0.75rem; color: var(--color-text-secondary); white-space: nowrap; }
+}
+
+.btn-primary {
+  background: var(--color-primary); color: #000; border: none;
+  border-radius: var(--border-radius-sm);
+  padding: 0.6rem 1.25rem;
+  font-size: 0.875rem; font-weight: 600; font-family: 'Inter', sans-serif;
+  cursor: pointer; transition: opacity 0.2s;
+  &:hover { opacity: 0.85; }
 }
 
 .btn-refresh {
   background: none;
   border: 1px solid var(--color-border);
   color: var(--color-text-secondary);
-  font-size: 0.8rem;
-  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem; font-family: 'Inter', sans-serif;
   padding: 0.4rem 0.75rem;
   border-radius: var(--border-radius-sm);
-  cursor: pointer;
-  transition: all 0.15s;
+  cursor: pointer; transition: all 0.15s;
 
-  &:hover:not(:disabled) {
-    border-color: var(--color-primary);
-    color: var(--color-primary);
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-}
-
-.btn-primary {
-  background: var(--color-primary);
-  color: #000;
-  border: none;
-  border-radius: var(--border-radius-sm);
-  padding: 0.6rem 1.25rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  font-family: 'Inter', sans-serif;
-  cursor: pointer;
-  transition: opacity 0.2s;
-
-  &:hover {
-    opacity: 0.85;
-  }
+  &:hover:not(:disabled) { border-color: var(--color-primary); color: var(--color-primary); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
 // Métricas
@@ -208,11 +141,9 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  @media (max-width: 768px) { grid-template-columns: repeat(2, 1fr); }
 }
 
 .metric-card {
@@ -220,60 +151,123 @@
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius);
   padding: 1.25rem 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  display: flex; flex-direction: column; gap: 0.5rem;
 
   .metric-label {
-    font-size: 0.75rem;
-    font-weight: 500;
+    font-size: 0.75rem; font-weight: 500;
     color: var(--color-text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    text-transform: uppercase; letter-spacing: 0.05em;
   }
 
   .metric-value {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--color-text-primary);
-    letter-spacing: -0.03em;
+    font-size: 1.5rem; font-weight: 700;
+    color: var(--color-text-primary); letter-spacing: -0.03em;
   }
 }
 
-// Sección
+// Chart
 .section {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius);
   overflow: hidden;
+  margin-bottom: 1.5rem;
 }
 
 .section-title {
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: 0.875rem; font-weight: 600;
   color: var(--color-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  text-transform: uppercase; letter-spacing: 0.05em;
   padding: 1.25rem 1.5rem;
   border-bottom: 1px solid var(--color-border);
 }
 
-// Tabla
+.chart-section {
+  margin-bottom: 1.5rem;
+}
+
+.chart-container {
+  height: 220px;
+  padding: 1rem 1.5rem 1.5rem;
+
+  &.hidden { display: none; }
+}
+
+// Performers
+.performers-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  @media (max-width: 640px) { grid-template-columns: 1fr; }
+}
+
+.performer-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  padding: 1.25rem 1.5rem;
+  display: flex; flex-direction: column; gap: 0.75rem;
+
+  .performer-label {
+    font-size: 0.75rem; font-weight: 500;
+    color: var(--color-text-secondary);
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+
+  .performer-coin {
+    display: flex; align-items: center; gap: 0.75rem;
+
+    .coin-image { width: 32px; height: 32px; border-radius: 50%; }
+    .coin-symbol { font-size: 0.95rem; font-weight: 600; color: var(--color-text-primary); display: block; }
+    .coin-name { font-size: 0.75rem; color: var(--color-text-secondary); display: block; }
+  }
+
+  .performer-value { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
+}
+
+// Noticias
+.news-list { display: flex; flex-direction: column; }
+
+.news-item {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  text-decoration: none; transition: background 0.15s;
+
+  &:last-child { border-bottom: none; }
+  &:hover { background: var(--color-surface-raised); }
+
+  .news-content { flex: 1; display: flex; flex-direction: column; gap: 0.4rem; }
+
+  .news-currencies { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+  .currency-tag {
+    font-size: 0.7rem; font-weight: 600;
+    padding: 0.15rem 0.5rem; border-radius: 20px;
+    background: var(--color-primary-dim); color: var(--color-primary);
+  }
+
+  .news-title { font-size: 0.875rem; color: var(--color-text-primary); line-height: 1.4; }
+
+  .news-meta { display: flex; gap: 1rem; font-size: 0.75rem; color: var(--color-text-secondary); }
+
+  .news-arrow { font-size: 1rem; color: var(--color-text-muted); flex-shrink: 0; }
+}
+
+// Tabla posiciones
 .positions-table {
   .table-header {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1.5fr;
     padding: 0.75rem 1.5rem;
-    font-size: 0.75rem;
-    font-weight: 500;
+    font-size: 0.75rem; font-weight: 500;
     color: var(--color-text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    text-transform: uppercase; letter-spacing: 0.05em;
     border-bottom: 1px solid var(--color-border);
 
-    @media (max-width: 768px) {
-      display: none;
-    }
+    @media (max-width: 768px) { display: none; }
   }
 
   .table-row {
@@ -284,70 +278,31 @@
     border-bottom: 1px solid var(--color-border);
     transition: background 0.15s;
 
-    &:last-child {
-      border-bottom: none;
-    }
+    &:last-child { border-bottom: none; }
+    &:hover { background: var(--color-surface-raised); }
 
-    &:hover {
-      background: var(--color-surface-raised);
-    }
-
-    @media (max-width: 768px) {
-      grid-template-columns: 1fr 1fr;
-      gap: 0.5rem;
-    }
+    @media (max-width: 768px) { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
   }
 }
 
-.coin-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-
-  .coin-symbol {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--color-text-primary);
-  }
-
-  .coin-name {
-    font-size: 0.78rem;
-    color: var(--color-text-secondary);
-  }
-}
+.coin-info { display: flex; align-items: center; }
 
 .coin-identity {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  display: flex; align-items: center; gap: 0.75rem;
 
-  .coin-image {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: contain;
-  }
+  .coin-image { width: 32px; height: 32px; border-radius: 50%; object-fit: contain; flex-shrink: 0; }
 
-  div {
-    display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
-  }
+  div { display: flex; flex-direction: column; gap: 0.15rem; }
+
+  .coin-symbol { font-size: 0.875rem; font-weight: 600; color: var(--color-text-primary); }
+  .coin-name { font-size: 0.75rem; color: var(--color-text-secondary); }
 }
 
-.cell {
-  font-size: 0.875rem;
-  color: var(--color-text-primary);
-}
+.cell { font-size: 0.875rem; color: var(--color-text-primary); }
 
 .pnl-cell {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-
-  .pnl-percent {
-    font-size: 0.75rem;
-  }
+  display: flex; flex-direction: column; gap: 0.15rem;
+  .pnl-percent { font-size: 0.75rem; }
 }
 
 .positive { color: var(--color-success) !important; }
@@ -355,41 +310,26 @@
 
 // Estados
 .loading {
-  text-align: center;
-  padding: 4rem;
-  color: var(--color-text-secondary);
-  font-size: 0.875rem;
+  text-align: center; padding: 4rem;
+  color: var(--color-text-secondary); font-size: 0.875rem;
 }
 
 .empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  padding: 4rem;
-  color: var(--color-text-secondary);
-  font-size: 0.875rem;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 1rem; padding: 4rem;
+  color: var(--color-text-secondary); font-size: 0.875rem;
+
+  &.small { padding: 2rem; }
 }
 
+// Footer CoinGecko
 .coingecko-footer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-top: 3rem;
-  padding-top: 1.5rem;
+  display: flex; align-items: center; justify-content: center;
+  gap: 0.5rem; margin-top: 3rem; padding-top: 1.5rem;
   border-top: 1px solid var(--color-border);
-  font-size: 0.75rem;
-  color: var(--color-text-secondary);
+  font-size: 0.75rem; color: var(--color-text-secondary);
 
-  a {
-    display: flex;
-    align-items: center;
-    opacity: 0.7;
-    transition: opacity 0.15s;
-
-    &:hover {
-      opacity: 1;
-    }
+  a { display: flex; align-items: center; opacity: 0.7; transition: opacity 0.15s;
+    &:hover { opacity: 1; }
   }
 }

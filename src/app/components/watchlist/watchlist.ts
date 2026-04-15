@@ -8,13 +8,15 @@ import { CoinService } from '../../services/coin';
 import { AuthService } from '../../services/auth';
 import { WatchlistItem } from '../../models/watchlist.models';
 import { Coin } from '../../models/coin.models';
+import { Navbar } from '../navbar/navbar';
+
 
 Chart.register(LineElement, PointElement, LinearScale, Filler, Tooltip, LineController, CategoryScale);
 
 @Component({
   selector: 'app-watchlist',
   standalone: true,
-  imports: [CommonModule],
+  imports: [Navbar, CommonModule],
   templateUrl: './watchlist.html',
   styleUrl: './watchlist.scss'
 })

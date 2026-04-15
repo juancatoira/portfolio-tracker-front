@@ -48,6 +48,12 @@ body {
   --shadow-md: 0 4px 24px rgba(0,0,0,0.3);
 }
 
+@media (max-width: 640px) {
+  .main-content {
+    padding-bottom: calc(64px + 1rem) !important;
+  }
+}
+
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: var(--color-background); }
 ::-webkit-scrollbar-thumb { background: var(--color-border-bright); border-radius: 2px; }

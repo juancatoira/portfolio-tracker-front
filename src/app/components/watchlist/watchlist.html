@@ -1,22 +1,6 @@
 <div class="watchlist-page">
 
-  <nav class="navbar">
-    <div class="navbar-brand">
-      <span class="logo-icon">◈</span>
-      <span class="logo-text">PortfolioTracker</span>
-    </div>
-    <div class="navbar-links">
-      <button class="nav-link" (click)="navigateTo('/dashboard')">Dashboard</button>
-      <button class="nav-link" (click)="navigateTo('/portfolio')">Portfolio</button>
-      <button class="nav-link active">Watchlist</button>
-    </div>
-    <div class="navbar-user">
-      @if (currentUser$ | async; as user) {
-        <span class="user-email">{{ user.email }}</span>
-      }
-      <button class="btn-logout" (click)="logout()">Salir</button>
-    </div>
-  </nav>
+<app-navbar />
 
   <main class="main-content">
 

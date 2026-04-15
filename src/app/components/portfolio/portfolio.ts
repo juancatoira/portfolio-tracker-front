@@ -6,13 +6,14 @@ import { PortfolioService } from '../../services/portfolio';
 import { AuthService } from '../../services/auth';
 import { Position, Transaction } from '../../models/transaction.models';
 import { NewTransactionComponent } from '../new-transaction/new-transaction';
+import { Navbar} from '../navbar/navbar';
 
 Chart.register(ArcElement, Tooltip, Legend, DoughnutController);
 
 @Component({
   selector: 'app-portfolio',
   standalone: true,
-  imports: [CommonModule, NewTransactionComponent],
+  imports: [Navbar, CommonModule, NewTransactionComponent],
   templateUrl: './portfolio.html',
   styleUrl: './portfolio.scss'
 })

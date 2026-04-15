@@ -7,13 +7,15 @@ import { AuthService } from '../../services/auth';
 import { Position,Transaction } from '../../models/transaction.models';
 import { Snapshot, NewsItem } from '../../models/dashboard.models';
 import { NewTransactionComponent } from '../new-transaction/new-transaction';
+import { Navbar } from '../navbar/navbar';
+
 
 Chart.register(LineElement, PointElement, LinearScale, Filler, Tooltip, LineController, CategoryScale);
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, NewTransactionComponent],
+  imports: [CommonModule, Navbar,CommonModule, NewTransactionComponent],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })

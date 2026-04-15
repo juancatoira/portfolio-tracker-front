@@ -31,16 +31,33 @@ export class Portfolio implements OnInit, AfterViewInit {
   filterCoinId = signal<string | null>(null);
   openMenuId = signal<string | null>(null);
   currentUser$ = this.authService.currentUser$;
+  historySearch = signal<string>('');
+  selectedTransaction = signal<Transaction | null>(null);
+
 
   private chart: Chart | null = null;
   readonly OTHER_THRESHOLD = 3;
   readonly MIN_POSITIONS_FOR_OTHERS = 5;
 
-  filteredTransactions = computed(() => {
-    const filter = this.filterCoinId();
-    if (!filter) return this.transactions();
-    return this.transactions().filter(t => t.coinId === filter);
-  });
+filteredTransactions = computed(() => {
+  const filter = this.filterCoinId();
+  const search = this.historySearch().toLowerCase().trim();
+
+  let txs = this.transactions();
+
+  if (filter) {
+    txs = txs.filter(t => t.coinId === filter);
+  }
+
+  if (search) {
+    txs = txs.filter(t =>
+      t.coinSymbol.toLowerCase().includes(search) ||
+      t.coinName.toLowerCase().includes(search)
+    );
+  }
+
+  return txs;
+});
 
  chartData = computed(() => {
   const positions = this.positions();
@@ -215,5 +232,18 @@ export class Portfolio implements OnInit, AfterViewInit {
     if (type === 'BUY') return 'badge-buy';
     if (type === 'SELL') return 'badge-sell';
     return 'badge-manual';
+  }
+
+  openTransaction(tx: Transaction) {
+    this.selectedTransaction.set(tx);
+  }
+
+  closeTransaction() {
+    this.selectedTransaction.set(null);
+  }
+  
+  getCoinImage(coinId: string): string {
+    const position = this.positions().find(p => p.coinId === coinId);
+    return position?.imageUrl ?? '';
   }
 }

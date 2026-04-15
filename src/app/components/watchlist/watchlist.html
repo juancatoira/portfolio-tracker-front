@@ -1,1 +1,206 @@
-<p>watchlist works!</p>
+<div class="watchlist-page">
+
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <span class="logo-icon">◈</span>
+      <span class="logo-text">PortfolioTracker</span>
+    </div>
+    <div class="navbar-links">
+      <button class="nav-link" (click)="navigateTo('/dashboard')">Dashboard</button>
+      <button class="nav-link" (click)="navigateTo('/portfolio')">Portfolio</button>
+      <button class="nav-link active">Watchlist</button>
+    </div>
+    <div class="navbar-user">
+      @if (currentUser$ | async; as user) {
+        <span class="user-email">{{ user.email }}</span>
+      }
+      <button class="btn-logout" (click)="logout()">Salir</button>
+    </div>
+  </nav>
+
+  <main class="main-content">
+
+    <div class="page-header">
+      <h1>Watchlist</h1>
+      <div class="coin-selector">
+        <div class="search-input-wrapper">
+          <span class="search-icon">⌕</span>
+          <input
+            type="text"
+            [value]="searchQuery()"
+            (input)="onSearchInput($event)"
+            (focus)="showDropdown.set(true)"
+            (blur)="closeDropdown()"
+            placeholder="Añadir moneda..."
+          />
+        </div>
+        @if (showDropdown()) {
+          <div class="coin-dropdown">
+            @if (isSearching()) {
+              <div class="dropdown-loading">Buscando...</div>
+            } @else {
+              @if (searchQuery().length === 0) {
+                <div class="dropdown-label">Top 10</div>
+              }
+              @for (coin of displayedCoins(); track coin.id) {
+                <div class="dropdown-item" [class.already-added]="isInWatchlist(coin.id)" (click)="addCoin(coin)">
+                  <img [src]="coin.imageUrl" [alt]="coin.name" class="coin-image-sm"/>
+                  <span class="coin-symbol">{{ coin.symbol }}</span>
+                  <span class="coin-name">{{ coin.name }}</span>
+                  @if (coin.marketCapRank) {
+                    <span class="coin-rank">#{{ coin.marketCapRank }}</span>
+                  }
+                  @if (isInWatchlist(coin.id)) {
+                    <span class="already-added-label">Añadida</span>
+                  }
+                </div>
+              }
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    @if (isLoading()) {
+      <div class="loading">Cargando watchlist...</div>
+    } @else {
+      <div class="section">
+        @if (watchlist().length === 0) {
+          <div class="empty-state">
+            <p>Tu watchlist está vacía.</p>
+            <p class="empty-hint">Busca una moneda arriba para añadirla.</p>
+          </div>
+        } @else {
+          <div class="watchlist-table">
+            <div class="table-header">
+              <span>Activo</span>
+              <span>Precio</span>
+              <span>24h</span>
+              <span>7d</span>
+              <span class="desktop-only">Máx 24h</span>
+              <span class="desktop-only">Mín 24h</span>
+              <span class="desktop-only">Market Cap</span>
+              <span class="desktop-only">Volumen 24h</span>
+              <span>7d</span>
+              <span></span>
+            </div>
+            @for (item of watchlist(); track item.coinId; let i = $index) {
+              <div class="table-row" (click)="openDetail(item)">
+  <div class="coin-identity">
+    <img [src]="item.imageUrl ?? ''" [alt]="item.coinName" class="coin-image" onerror="this.style.display='none'"/>
+    <div>
+      <span class="coin-symbol">{{ item.coinSymbol }}</span>
+      <span class="coin-name">{{ item.coinName }}</span>
+    </div>
+  </div>
+  <div class="marketcap-cell">
+    <span class="cell">{{ formatLargeNumber(item.marketCap) }}</span>
+  </div>
+  <div class="price-cell">
+    <span class="cell price">{{ formatCurrency(item.currentPriceUsd) }}</span>
+    <span class="cell change-mobile"
+      [class.positive]="isPositive(item.priceChangePercent24h)"
+      [class.negative]="!isPositive(item.priceChangePercent24h)">
+      {{ formatPercent(item.priceChangePercent24h) }}
+    </span>
+  </div>
+
+  <span class="cell desktop-tablet-only"
+    [class.positive]="isPositive(item.priceChangePercent24h)"
+    [class.negative]="!isPositive(item.priceChangePercent24h)">
+    {{ formatPercent(item.priceChangePercent24h) }}
+  </span>
+
+  <span class="cell desktop-tablet-only"
+    [class.positive]="isPositive(item.priceChangePercent7d)"
+    [class.negative]="!isPositive(item.priceChangePercent7d)">
+    {{ formatPercent(item.priceChangePercent7d) }}
+  </span>
+
+  <span class="cell desktop-only">{{ formatCurrency(item.high24h) }}</span>
+  <span class="cell desktop-only">{{ formatCurrency(item.low24h) }}</span>
+  <span class="cell desktop-only">{{ formatLargeNumber(item.marketCap) }}</span>
+  <span class="cell desktop-only">{{ formatLargeNumber(item.volume24h) }}</span>
+
+  <div class="sparkline-cell">
+    <canvas #sparklineCanvas></canvas>
+  </div>
+
+  <div class="actions-cell" (click)="$event.stopPropagation()">
+    <button class="btn-remove" (click)="removeCoin(item.coinId)" title="Eliminar">✕</button>
+  </div>
+</div>
+            }
+          </div>
+        }
+      </div>
+
+      <footer class="coingecko-footer">
+        <span>Datos de mercado proporcionados por</span>
+        <a href="https://www.coingecko.com" target="_blank" rel="noopener">
+          <img src="https://static.coingecko.com/s/coingecko-logo-8903d34ce19ca4be1c81f0db30e924154750d2fbe6378d7e3c7c2b1b5df9f86.png" alt="CoinGecko" height="20"/>
+        </a>
+      </footer>
+    }
+
+  </main>
+
+  <!-- Modal detalle -->
+  @if (selectedCoin()) {
+    <div class="modal-overlay" (click)="closeDetail()">
+      <div class="detail-modal" (click)="$event.stopPropagation()">
+
+        <div class="detail-modal-header">
+          <div class="detail-coin-info">
+            <img [src]="selectedCoin()!.imageUrl ?? ''" [alt]="selectedCoin()!.coinName" class="detail-coin-image" onerror="this.style.display='none'"/>
+            <div>
+              <span class="detail-coin-symbol">{{ selectedCoin()!.coinSymbol }}</span>
+              <span class="detail-coin-name">{{ selectedCoin()!.coinName }}</span>
+            </div>
+            <span class="detail-price">{{ formatCurrency(selectedCoin()!.currentPriceUsd) }}</span>
+            <span class="detail-change" [class.positive]="isPositive(selectedCoin()!.priceChangePercent24h)" [class.negative]="!isPositive(selectedCoin()!.priceChangePercent24h)">
+              {{ formatPercent(selectedCoin()!.priceChangePercent24h) }}
+            </span>
+          </div>
+          <button class="btn-close" (click)="closeDetail()">✕</button>
+        </div>
+
+        <div class="detail-chart-container">
+          <canvas id="detailChart"></canvas>
+        </div>
+
+        <div class="detail-stats">
+          <div class="stat">
+            <span class="stat-label">Máx 24h</span>
+            <span class="stat-value">{{ formatCurrency(selectedCoin()!.high24h) }}</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Mín 24h</span>
+            <span class="stat-value">{{ formatCurrency(selectedCoin()!.low24h) }}</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">7d</span>
+            <span class="stat-value" [class.positive]="isPositive(selectedCoin()!.priceChangePercent7d)" [class.negative]="!isPositive(selectedCoin()!.priceChangePercent7d)">
+              {{ formatPercent(selectedCoin()!.priceChangePercent7d) }}
+            </span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Market Cap</span>
+            <span class="stat-value">{{ formatLargeNumber(selectedCoin()!.marketCap) }}</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Volumen 24h</span>
+            <span class="stat-value">{{ formatLargeNumber(selectedCoin()!.volume24h) }}</span>
+          </div>
+        </div>
+
+        <div class="detail-modal-footer">
+          <button class="btn-secondary" (click)="closeDetail()">Cerrar</button>
+          <button class="btn-danger" (click)="removeCoin(selectedCoin()!.coinId)">Eliminar de watchlist</button>
+        </div>
+
+      </div>
+    </div>
+  }
+
+</div>

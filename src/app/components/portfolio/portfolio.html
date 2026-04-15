@@ -53,116 +53,119 @@
             </button>
           </div>
         } @else {
-          <div class="positions-table">
-            <div class="table-header">
-              <span>Activo</span>
-              <span>Cantidad</span>
-              <span>Precio medio</span>
-              <span>Precio actual</span>
-              <span>Valor</span>
-              <span>P&L</span>
-              <span></span>
+          <div class="positions-list">
+            <div class="list-header">
+                <span>Activo</span>
+                <span>Valor / P&L</span>
+                <span class="desktop-only">Precio medio</span>
+                <span class="desktop-only">Precio actual</span>
+                <span></span>
             </div>
             @for (position of positions(); track position.coinId) {
-              <div class="table-row">
+                <div class="list-row">
                 <div class="coin-identity">
-                  <img [src]="position.imageUrl" [alt]="position.coinName" class="coin-image" onerror="this.style.display='none'"/>
-                  <div>
+                    <img [src]="position.imageUrl" [alt]="position.coinName" class="coin-image" onerror="this.style.display='none'"/>
+                    <div>
                     <span class="coin-symbol">{{ position.coinSymbol }}</span>
-                    <span class="coin-name">{{ position.coinName }}</span>
-                  </div>
-                </div>
-                <span class="cell">{{ position.quantity.toFixed(6) }}</span>
-                <span class="cell">{{ formatCurrency(position.averagePriceUsd) }}</span>
-                <span class="cell">{{ formatCurrency(position.currentPriceUsd) }}</span>
-                <span class="cell">{{ formatCurrency(position.currentValueUsd) }}</span>
-                <div class="cell pnl-cell">
-                  <span [class.positive]="isPnlPositive(position.pnlUsd)" [class.negative]="!isPnlPositive(position.pnlUsd)">
-                    {{ formatCurrency(position.pnlUsd) }}
-                  </span>
-                  <span class="pnl-percent" [class.positive]="isPnlPositive(position.pnlPercent)" [class.negative]="!isPnlPositive(position.pnlPercent)">
-                    {{ position.pnlPercent.toFixed(2) }}%
-                  </span>
-                </div>
-                <div class="cell actions-cell">
-                  <button class="btn-menu" (click)="toggleMenu(position.coinId)">⋯</button>
-                  @if (openMenuId() === position.coinId) {
-                    <div class="dropdown-menu">
-                      <button (click)="setFilter(position.coinId); openMenuId.set(null)">
-                        Ver transacciones
-                      </button>
+                    <span class="coin-name">{{ position.quantity.toFixed(4) }} uds</span>
                     </div>
-                  }
                 </div>
-              </div>
+                <div class="position-values">
+                    <span class="cell">{{ formatCurrency(position.currentValueUsd) }}</span>
+                    <div class="pnl-inline">
+                        <span class="cell-label">P&L</span>
+                        <span [class.positive]="isPnlPositive(position.pnlUsd)" [class.negative]="!isPnlPositive(position.pnlUsd)">
+                        {{ formatCurrency(position.pnlUsd) }}
+                        </span>
+                        <span class="pnl-percent" [class.positive]="isPnlPositive(position.pnlPercent)" [class.negative]="!isPnlPositive(position.pnlPercent)">
+                        ({{ position.pnlPercent.toFixed(2) }}%)
+                        </span>
+                    </div>
+                </div>
+                <div class="position-avg desktop-only">
+                    <span class="cell-label">Precio medio</span>
+                    <span class="cell">{{ formatCurrency(position.averagePriceUsd) }}</span>
+                </div>
+                <div class="position-avg desktop-only">
+                    <span class="cell-label">Precio actual</span>
+                    <span class="cell">{{ formatCurrency(position.currentPriceUsd) }}</span>
+                </div>
+                <div class="actions-cell">
+                    <button class="btn-menu" (click)="toggleMenu(position.coinId)">⋯</button>
+                    @if (openMenuId() === position.coinId) {
+                    <div class="dropdown-menu">
+                        <button (click)="setFilter(position.coinId); openMenuId.set(null)">
+                        Ver transacciones
+                        </button>
+                    </div>
+                    }
+                </div>
+            </div>
             }
-          </div>
+            </div>
         }
       </div>
 
       <!-- Historial de transacciones -->
-      <div class="section">
-        <div class="section-header">
-          <h2 class="section-title">Historial</h2>
-          <div class="filter-bar">
-            @if (filterCoinId()) {
-              <span class="filter-tag">
-                {{ filterCoinId() }}
-                <button (click)="setFilter(null)">✕</button>
-              </span>
-            }
-            @for (position of positions(); track position.coinId) {
-              <button
-                class="filter-btn"
-                [class.active]="filterCoinId() === position.coinId"
-                (click)="setFilter(filterCoinId() === position.coinId ? null : position.coinId)">
-                {{ position.coinSymbol }}
-              </button>
-            }
-          </div>
+    <div class="section">
+        <div class="history-header">
+            <h2 class="history-title">Historial</h2>
+            <div class="search-box">
+            <span class="search-icon">⌕</span>
+            <input
+                type="text"
+                placeholder="Buscar por moneda..."
+                [value]="historySearch()"
+                (input)="historySearch.set($any($event.target).value)"
+            />
+            </div>
         </div>
 
         @if (filteredTransactions().length === 0) {
-          <div class="empty-state">
+            <div class="empty-state">
             <p>No hay transacciones.</p>
-          </div>
-        } @else {
-          <div class="transactions-table">
-            <div class="table-header">
-              <span>Tipo</span>
-              <span>Activo</span>
-              <span>Cantidad</span>
-              <span>Precio</span>
-              <span>Total</span>
-              <span>Fecha</span>
-              <span></span>
             </div>
+        } @else {
+            <div class="tx-table-header">
+            <span>Tipo / Activo</span>
+            <span>Cantidad</span>
+            <span>Precio</span>
+            <span>Total</span>
+            <span>Fecha</span>
+            <span></span>
+            </div>
+            <div class="tx-cards">
             @for (tx of filteredTransactions(); track tx.id) {
-              <div class="table-row">
-                <span class="badge" [class]="typeClass(tx.type)">{{ typeLabel(tx.type) }}</span>
-                <div class="coin-identity">
-                  <span class="coin-symbol">{{ tx.coinSymbol }}</span>
-                  <span class="coin-name">{{ tx.coinName }}</span>
-                </div>
-                <span class="cell">{{ tx.quantity }}</span>
-                <span class="cell">{{ formatCurrency(tx.priceUsd) }}</span>
-                <span class="cell">{{ formatCurrency(tx.quantity * tx.priceUsd) }}</span>
-                <span class="cell">{{ formatDate(tx.date) }}</span>
-                <div class="cell actions-cell">
-                  <button class="btn-menu" (click)="toggleMenu(tx.id)">⋯</button>
-                  @if (openMenuId() === tx.id) {
-                    <div class="dropdown-menu">
-                      <button class="danger" (click)="deleteTransaction(tx.id)">
-                        Eliminar
-                      </button>
+                <div class="tx-card" (click)="openTransaction(tx)">
+                <div class="tx-card-left">
+                    <span class="badge" [class]="typeClass(tx.type)">{{ typeLabel(tx.type) }}</span>
+                    <div class="tx-coin">
+                    <span class="coin-symbol">{{ tx.coinSymbol }}</span>
+                    <span class="coin-name">{{ tx.coinName }}</span>
                     </div>
-                  }
                 </div>
-              </div>
+                <span class="tx-value">{{ tx.quantity }}</span>
+                <span class="tx-value">{{ formatCurrency(tx.priceUsd) }}</span>
+                <span class="tx-value tx-total-value">{{ formatCurrency(tx.quantity * tx.priceUsd) }}</span>
+                <div class="tx-date-col">
+                    <span class="tx-date">{{ formatDate(tx.date) }}</span>
+                    @if (tx.notes) {
+                    <span class="tx-notes">{{ tx.notes }}</span>
+                    }
+                </div>
+                <div class="actions-cell">
+                    <button class="btn-menu" (click)="$event.stopPropagation(); toggleMenu(tx.id)">⋯</button>
+                    @if (openMenuId() === tx.id) {
+                    <div class="dropdown-menu">
+                        <button class="danger" (click)="deleteTransaction(tx.id)">Eliminar</button>
+                    </div>
+                    }
+                </div>
+                </div>
             }
-          </div>
+            </div>
         }
-      </div>
+        </div>
 
       <!-- Powered by CoinGecko -->
       <footer class="coingecko-footer">
@@ -177,4 +180,66 @@
   @if (showNewTransaction()) {
     <app-new-transaction (closed)="onModalClosed($event)" />
   }
+  @if (selectedTransaction()) {
+  <div class="modal-overlay" (click)="closeTransaction()">
+    <div class="tx-modal" (click)="$event.stopPropagation()">
+
+    <div class="tx-modal-header">
+    <div class="tx-modal-title">
+        <span class="badge" [class]="typeClass(selectedTransaction()!.type)">
+        {{ typeLabel(selectedTransaction()!.type) }}
+        </span>
+        <div class="tx-modal-coin">
+        <img
+            [src]="getCoinImage(selectedTransaction()!.coinId)"
+            [alt]="selectedTransaction()!.coinName"
+            class="tx-modal-coin-image"
+            onerror="this.style.display='none'"
+        />
+        <div class="tx-modal-coin-info">
+            <span class="coin-symbol">{{ selectedTransaction()!.coinSymbol }}</span>
+            <span class="coin-name">{{ selectedTransaction()!.coinName }}</span>
+        </div>
+        </div>
+    </div>
+    <button class="btn-close" (click)="closeTransaction()">✕</button>
+    </div>
+
+      <div class="tx-modal-body">
+        <div class="tx-modal-row">
+          <span class="tx-modal-label">Cantidad</span>
+          <span class="tx-modal-value">{{ selectedTransaction()!.quantity }}</span>
+        </div>
+        <div class="tx-modal-row">
+          <span class="tx-modal-label">Precio unitario</span>
+          <span class="tx-modal-value">{{ formatCurrency(selectedTransaction()!.priceUsd) }}</span>
+        </div>
+        <div class="tx-modal-row">
+          <span class="tx-modal-label">Total operación</span>
+          <span class="tx-modal-value tx-modal-total">
+            {{ formatCurrency(selectedTransaction()!.quantity * selectedTransaction()!.priceUsd) }}
+          </span>
+        </div>
+        <div class="tx-modal-row">
+          <span class="tx-modal-label">Fecha</span>
+          <span class="tx-modal-value">{{ formatDate(selectedTransaction()!.date) }}</span>
+        </div>
+        @if (selectedTransaction()!.notes) {
+          <div class="tx-modal-row">
+            <span class="tx-modal-label">Notas</span>
+            <span class="tx-modal-value tx-modal-notes">{{ selectedTransaction()!.notes }}</span>
+          </div>
+        }
+      </div>
+
+      <div class="tx-modal-footer">
+        <button class="btn-secondary" (click)="closeTransaction()">Cerrar</button>
+        <button class="btn-danger" (click)="deleteTransaction(selectedTransaction()!.id); closeTransaction()">
+          Eliminar
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
 </div>

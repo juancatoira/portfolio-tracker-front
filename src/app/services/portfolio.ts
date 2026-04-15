@@ -45,4 +45,8 @@ export class PortfolioService {
   getNews() {
     return this.http.get<NewsItem[]>(`${this.apiUrl}/dashboard/news`);
   }
+
+  getDashboardTransactions() {
+    return this.http.get<Transaction[]>(`${this.apiUrl}/dashboard/transactions`);
+  }  
 }

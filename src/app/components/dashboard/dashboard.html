@@ -65,7 +65,25 @@
 
       <!-- Gráfica evolución -->
       <div class="section chart-section">
-        <h2 class="section-title">Evolución del portfolio</h2>
+        <div class="chart-header">
+          <h2 class="section-title">Evolución del portfolio</h2>
+          <div class="chart-toggles">
+            <button
+              class="toggle-btn"
+              [class.active-buy]="showBuys()"
+              (click)="toggleBuys()">
+              <span class="toggle-dot buy"></span>
+              Compras
+            </button>
+            <button
+              class="toggle-btn"
+              [class.active-sell]="showSells()"
+              (click)="toggleSells()">
+              <span class="toggle-dot sell"></span>
+              Ventas
+            </button>
+          </div>
+        </div>
         <div class="chart-container" [class.hidden]="snapshots().length < 2">
           <canvas #lineCanvas></canvas>
         </div>

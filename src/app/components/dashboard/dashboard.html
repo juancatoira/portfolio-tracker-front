@@ -23,7 +23,6 @@
       <div class="loading">Cargando portfolio...</div>
     } @else {
 
-      <!-- Métricas -->
       <div class="metrics-grid">
         <div class="metric-card">
           <span class="metric-label">Valor total</span>
@@ -47,24 +46,15 @@
         </div>
       </div>
 
-      <!-- Gráfica evolución -->
       <div class="section chart-section">
         <div class="chart-header">
           <h2 class="section-title">Evolución del portfolio</h2>
           <div class="chart-toggles">
-            <button
-              class="toggle-btn"
-              [class.active-buy]="showBuys()"
-              (click)="toggleBuys()">
-              <span class="toggle-dot buy"></span>
-              Compras
+            <button class="toggle-btn" [class.active-buy]="showBuys()" (click)="toggleBuys()">
+              <span class="toggle-dot buy"></span>Compras
             </button>
-            <button
-              class="toggle-btn"
-              [class.active-sell]="showSells()"
-              (click)="toggleSells()">
-              <span class="toggle-dot sell"></span>
-              Ventas
+            <button class="toggle-btn" [class.active-sell]="showSells()" (click)="toggleSells()">
+              <span class="toggle-dot sell"></span>Ventas
             </button>
           </div>
         </div>
@@ -78,7 +68,6 @@
         }
       </div>
 
-      <!-- Mejores y peores -->
       @if (positions().length > 0) {
         <div class="performers-grid">
           @if (bestPosition(); as best) {
@@ -110,7 +99,6 @@
         </div>
       }
 
-      <!-- Noticias -->
       <div class="section">
         <h2 class="section-title">Noticias</h2>
         @if (news().length === 0) {
@@ -138,57 +126,10 @@
         }
       </div>
 
-      <!-- Posiciones -->
-      <div class="section">
-        <h2 class="section-title">Mis posiciones</h2>
-        @if (positions().length === 0) {
-          <div class="empty-state">
-            <p>No tienes posiciones todavía.</p>
-            <button class="btn-primary" (click)="openNewTransaction()">Añadir primera posición</button>
-          </div>
-        } @else {
-          <div class="positions-table">
-            <div class="table-header">
-              <span>Activo</span>
-              <span>Cantidad</span>
-              <span>Precio medio</span>
-              <span>Precio actual</span>
-              <span>Valor</span>
-              <span>P&L</span>
-            </div>
-            @for (position of positions(); track position.coinId) {
-              <div class="table-row">
-                <div class="coin-info">
-                  <div class="coin-identity">
-                    <img [src]="position.imageUrl" [alt]="position.coinName" class="coin-image" onerror="this.style.display='none'"/>
-                    <div>
-                      <span class="coin-symbol">{{ position.coinSymbol }}</span>
-                      <span class="coin-name">{{ position.coinName }}</span>
-                    </div>
-                  </div>
-                </div>
-                <span class="cell">{{ position.quantity.toFixed(6) }}</span>
-                <span class="cell">{{ formatCurrency(position.averagePriceUsd) }}</span>
-                <span class="cell">{{ formatCurrency(position.currentPriceUsd) }}</span>
-                <span class="cell">{{ formatCurrency(position.currentValueUsd) }}</span>
-                <div class="cell pnl-cell">
-                  <span [class.positive]="isPnlPositive(position.pnlUsd)" [class.negative]="!isPnlPositive(position.pnlUsd)">
-                    {{ formatCurrency(position.pnlUsd) }}
-                  </span>
-                  <span class="pnl-percent" [class.positive]="isPnlPositive(position.pnlPercent)" [class.negative]="!isPnlPositive(position.pnlPercent)">
-                    {{ formatPercent(position.pnlPercent) }}
-                  </span>
-                </div>
-              </div>
-            }
-          </div>
-        }
-      </div>
-
       <footer class="coingecko-footer">
         <span>Datos de mercado proporcionados por</span>
         <a href="https://www.coingecko.com" target="_blank" rel="noopener">
-          <img src="https://static.coingecko.com/s/coingecko-logo-8903d34ce19ca4be1c81f0db30e924154750d2fbe6378d7e3c7c2b1b5df9f86.png" alt="CoinGecko" height="20"/>
+          <img src="https://www.coingecko.com/assets/thumbnail-007177f3eca19695592f0b8b0eabbdae282b54154e1be912285c9034ea6cbaf2.png" alt="CoinGecko"/>
         </a>
       </footer>
     }

@@ -124,11 +124,28 @@
 
 // Coin identity
 .coin-identity {
-  display: flex; align-items: center; gap: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
 
-  .coin-image { width: 28px; height: 28px; border-radius: 50%; object-fit: contain; flex-shrink: 0; }
-  .coin-symbol { font-size: 0.875rem; font-weight: 600; color: var(--color-text-primary); display: block; }
-  .coin-name { font-size: 0.75rem; color: var(--color-text-secondary); display: block; }
+  .coin-image {
+    width: 28px; height: 28px;
+    border-radius: 50%; object-fit: contain; flex-shrink: 0;
+
+    @media (max-width: 768px) {
+      width: 24px; height: 24px;
+    }
+  }
+
+  .coin-symbol {
+    font-size: 0.875rem; font-weight: 600;
+    color: var(--color-text-primary); display: block;
+  }
+
+  .coin-name {
+    font-size: 0.72rem;
+    color: var(--color-text-secondary); display: block;
+  }
 }
 
 .cell { font-size: 0.875rem; color: var(--color-text-primary); }
@@ -220,6 +237,7 @@
     @media (max-width: 768px) {
       grid-template-columns: 1fr 1fr 40px;
       padding: 0.875rem 1rem;
+      gap: 0.5rem;
     }
   }
 }
@@ -227,7 +245,12 @@
 .position-values {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.2rem;
+  align-items: flex-end;
+
+  @media (max-width: 768px) {
+    align-items: flex-end;
+  }
 }
 
 .pnl-inline {

@@ -1,6 +1,6 @@
 <div class="watchlist-page">
 
-<app-navbar />
+  <app-navbar />
 
   <main class="main-content">
 
@@ -58,62 +58,72 @@
           <div class="watchlist-table">
             <div class="table-header">
               <span>Activo</span>
-              <span>Precio</span>
-              <span>24h</span>
-              <span>7d</span>
+              <span>Precio / 24h / 7d</span>
+              <span class="desktop-tablet-only">24h</span>
+              <span class="desktop-tablet-only">7d</span>
               <span class="desktop-only">Máx 24h</span>
               <span class="desktop-only">Mín 24h</span>
               <span class="desktop-only">Market Cap</span>
               <span class="desktop-only">Volumen 24h</span>
-              <span>7d</span>
+              <span>Gráfica</span>
               <span></span>
             </div>
             @for (item of watchlist(); track item.coinId; let i = $index) {
               <div class="table-row" (click)="openDetail(item)">
-  <div class="coin-identity">
-    <img [src]="item.imageUrl ?? ''" [alt]="item.coinName" class="coin-image" onerror="this.style.display='none'"/>
-    <div>
-      <span class="coin-symbol">{{ item.coinSymbol }}</span>
-      <span class="coin-name">{{ item.coinName }}</span>
-    </div>
-  </div>
-  <div class="marketcap-cell">
-    <span class="cell">{{ formatLargeNumber(item.marketCap) }}</span>
-  </div>
-  <div class="price-cell">
-    <span class="cell price">{{ formatCurrency(item.currentPriceUsd) }}</span>
-    <span class="cell change-mobile"
-      [class.positive]="isPositive(item.priceChangePercent24h)"
-      [class.negative]="!isPositive(item.priceChangePercent24h)">
-      {{ formatPercent(item.priceChangePercent24h) }}
-    </span>
-  </div>
 
-  <span class="cell desktop-tablet-only"
-    [class.positive]="isPositive(item.priceChangePercent24h)"
-    [class.negative]="!isPositive(item.priceChangePercent24h)">
-    {{ formatPercent(item.priceChangePercent24h) }}
-  </span>
+                <div class="coin-identity">
+                  <img [src]="item.imageUrl ?? ''" [alt]="item.coinName" class="coin-image" onerror="this.style.display='none'"/>
+                  <div class="coin-text">
+                    <span class="coin-symbol">{{ item.coinSymbol }}</span>
+                    <span class="coin-name">{{ item.coinName }}</span>
+                    <span class="coin-mcap mobile-only">{{ formatLargeNumber(item.marketCap) }}</span>
+                  </div>
+                </div>
 
-  <span class="cell desktop-tablet-only"
-    [class.positive]="isPositive(item.priceChangePercent7d)"
-    [class.negative]="!isPositive(item.priceChangePercent7d)">
-    {{ formatPercent(item.priceChangePercent7d) }}
-  </span>
+                <div class="price-cell">
+                  <span class="price">{{ formatCurrency(item.currentPriceUsd) }}</span>
+                  <div class="changes-row">
+                    <span class="change-label">24h</span>
+                    <span class="change-value"
+                      [class.positive]="isPositive(item.priceChangePercent24h)"
+                      [class.negative]="!isPositive(item.priceChangePercent24h)">
+                      {{ formatPercent(item.priceChangePercent24h) }}
+                    </span>
+                    <span class="change-label">7d</span>
+                    <span class="change-value"
+                      [class.positive]="isPositive(item.priceChangePercent7d)"
+                      [class.negative]="!isPositive(item.priceChangePercent7d)">
+                      {{ formatPercent(item.priceChangePercent7d) }}
+                    </span>
+                  </div>
+                </div>
 
-  <span class="cell desktop-only">{{ formatCurrency(item.high24h) }}</span>
-  <span class="cell desktop-only">{{ formatCurrency(item.low24h) }}</span>
-  <span class="cell desktop-only">{{ formatLargeNumber(item.marketCap) }}</span>
-  <span class="cell desktop-only">{{ formatLargeNumber(item.volume24h) }}</span>
+                <span class="cell desktop-tablet-only"
+                  [class.positive]="isPositive(item.priceChangePercent24h)"
+                  [class.negative]="!isPositive(item.priceChangePercent24h)">
+                  {{ formatPercent(item.priceChangePercent24h) }}
+                </span>
 
-  <div class="sparkline-cell">
-    <canvas #sparklineCanvas></canvas>
-  </div>
+                <span class="cell desktop-tablet-only"
+                  [class.positive]="isPositive(item.priceChangePercent7d)"
+                  [class.negative]="!isPositive(item.priceChangePercent7d)">
+                  {{ formatPercent(item.priceChangePercent7d) }}
+                </span>
 
-  <div class="actions-cell" (click)="$event.stopPropagation()">
-    <button class="btn-remove" (click)="removeCoin(item.coinId)" title="Eliminar">✕</button>
-  </div>
-</div>
+                <span class="cell desktop-only">{{ formatCurrency(item.high24h) }}</span>
+                <span class="cell desktop-only">{{ formatCurrency(item.low24h) }}</span>
+                <span class="cell desktop-only">{{ formatLargeNumber(item.marketCap) }}</span>
+                <span class="cell desktop-only">{{ formatLargeNumber(item.volume24h) }}</span>
+
+                <div class="sparkline-cell">
+                  <canvas #sparklineCanvas></canvas>
+                </div>
+
+                <div class="actions-cell" (click)="$event.stopPropagation()">
+                  <button class="btn-remove" (click)="removeCoin(item.coinId)">✕</button>
+                </div>
+
+              </div>
             }
           </div>
         }
@@ -122,14 +132,13 @@
       <footer class="coingecko-footer">
         <span>Datos de mercado proporcionados por</span>
         <a href="https://www.coingecko.com" target="_blank" rel="noopener">
-          <img src="https://static.coingecko.com/s/coingecko-logo-8903d34ce19ca4be1c81f0db30e924154750d2fbe6378d7e3c7c2b1b5df9f86.png" alt="CoinGecko" height="20"/>
+          <img src="https://www.coingecko.com/assets/thumbnail-007177f3eca19695592f0b8b0eabbdae282b54154e1be912285c9034ea6cbaf2.png" alt="CoinGecko"/>
         </a>
       </footer>
     }
 
   </main>
 
-  <!-- Modal detalle -->
   @if (selectedCoin()) {
     <div class="modal-overlay" (click)="closeDetail()">
       <div class="detail-modal" (click)="$event.stopPropagation()">
@@ -142,7 +151,9 @@
               <span class="detail-coin-name">{{ selectedCoin()!.coinName }}</span>
             </div>
             <span class="detail-price">{{ formatCurrency(selectedCoin()!.currentPriceUsd) }}</span>
-            <span class="detail-change" [class.positive]="isPositive(selectedCoin()!.priceChangePercent24h)" [class.negative]="!isPositive(selectedCoin()!.priceChangePercent24h)">
+            <span class="detail-change"
+              [class.positive]="isPositive(selectedCoin()!.priceChangePercent24h)"
+              [class.negative]="!isPositive(selectedCoin()!.priceChangePercent24h)">
               {{ formatPercent(selectedCoin()!.priceChangePercent24h) }}
             </span>
           </div>
@@ -164,7 +175,9 @@
           </div>
           <div class="stat">
             <span class="stat-label">7d</span>
-            <span class="stat-value" [class.positive]="isPositive(selectedCoin()!.priceChangePercent7d)" [class.negative]="!isPositive(selectedCoin()!.priceChangePercent7d)">
+            <span class="stat-value"
+              [class.positive]="isPositive(selectedCoin()!.priceChangePercent7d)"
+              [class.negative]="!isPositive(selectedCoin()!.priceChangePercent7d)">
               {{ formatPercent(selectedCoin()!.priceChangePercent7d) }}
             </span>
           </div>

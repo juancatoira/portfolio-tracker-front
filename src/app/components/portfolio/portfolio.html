@@ -214,6 +214,18 @@
             <span class="tx-modal-value tx-modal-notes">{{ selectedTransaction()!.notes }}</span>
           </div>
         }
+        @if (selectedTransaction()!.feeUsd > 0) {
+          <div class="tx-modal-row">
+            <span class="tx-modal-label">Comisión</span>
+            <span class="tx-modal-value">{{ formatCurrency(selectedTransaction()!.feeUsd) }}</span>
+          </div>
+          <div class="tx-modal-row">
+            <span class="tx-modal-label">Coste total</span>
+            <span class="tx-modal-value tx-modal-total">
+              {{ formatCurrency(selectedTransaction()!.quantity * selectedTransaction()!.priceUsd + selectedTransaction()!.feeUsd) }}
+            </span>
+          </div>
+        }
       </div>
 
       <div class="tx-modal-footer">

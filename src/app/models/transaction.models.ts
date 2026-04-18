@@ -6,6 +6,7 @@ export interface Transaction {
   type: 'BUY' | 'SELL' | 'MANUAL';
   quantity: number;
   priceUsd: number;
+  feeUsd: number;
   date: string;
   notes?: string;
 }
@@ -17,6 +18,7 @@ export interface TransactionRequest {
   type: 'BUY' | 'SELL' | 'MANUAL';
   quantity: number;
   priceUsd: number;
+  feeUsd: number;
   date: string;
   notes?: string;
 }

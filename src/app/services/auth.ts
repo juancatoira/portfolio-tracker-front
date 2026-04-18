@@ -51,4 +51,10 @@ export class AuthService {
     const user = localStorage.getItem('user');
     return user ? JSON.parse(user) : null;
   }
+
+  loginDemo() {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/demo`, {}).pipe(
+      tap(response => this.saveSession(response))
+    );
+  }
 }

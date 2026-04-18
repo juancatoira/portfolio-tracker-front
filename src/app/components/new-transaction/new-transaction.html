@@ -78,37 +78,44 @@
       <form [formGroup]="form" (ngSubmit)="submit()">
 
         <div class="fields-row">
+          
           <div class="field">
             <label>Cantidad</label>
             <input type="number" formControlName="quantity" placeholder="0.00" step="0.00000001"/>
           </div>
+          
           <div class="field">
             <label>Precio (USD)</label>
             <input type="number" formControlName="priceUsd" placeholder="0.00" step="0.01"/>
           </div>
         </div>
-
+        
         <div class="field">
           <label>Fecha</label>
           <input type="datetime-local" formControlName="date"/>
         </div>
 
         <div class="field">
+          <label>Comisión (USD) <span class="optional">(opcional)</span></label>
+          <input type="number" formControlName="feeUsd" placeholder="0.00" step="0.01"/>
+        </div>
+        
+        <div class="field">
           <label>Notas <span class="optional">(opcional)</span></label>
           <input type="text" formControlName="notes" placeholder="Ej: compra DCA mensual"/>
         </div>
-
-        @if (errorMessage()) {
-          <div class="error-banner">{{ errorMessage() }}</div>
-        }
-
+        
         <div class="modal-footer">
           <button type="button" class="btn-secondary" (click)="close()">Cancelar</button>
           <button type="submit" class="btn-primary" [disabled]="isSubmitting()">
             {{ isSubmitting() ? 'Guardando...' : 'Guardar operación' }}
           </button>
         </div>
-
+        
+        @if (errorMessage()) {
+          <div class="error-banner">{{ errorMessage() }}</div>
+        }
+        
       </form>
     </div>
   </div>

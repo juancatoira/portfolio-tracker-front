@@ -33,12 +33,13 @@ export class NewTransactionComponent implements OnInit {
   private searchSubject = new Subject<string>();
 
   form: FormGroup = this.fb.group({
-    type: ['BUY', Validators.required],
-    quantity: ['', [Validators.required, Validators.min(0.00000001)]],
-    priceUsd: ['', [Validators.required, Validators.min(0.01)]],
-    date: [new Date().toISOString().slice(0, 16), Validators.required],
-    notes: ['']
-  });
+  type: ['BUY', Validators.required],
+  quantity: ['', [Validators.required, Validators.min(0.00000001)]],
+  priceUsd: ['', [Validators.required, Validators.min(0.01)]],
+  feeUsd: [0, [Validators.min(0)]],
+  date: [new Date().toISOString().slice(0, 16), Validators.required],
+  notes: ['']
+});
 
   ngOnInit() {
     this.coinService.getTop(10).subscribe({
@@ -98,7 +99,7 @@ export class NewTransactionComponent implements OnInit {
     this.errorMessage.set('');
 
     const coin = this.selectedCoin()!;
-    const { type, quantity, priceUsd, date, notes } = this.form.value;
+    const { type, quantity, priceUsd, feeUsd, date, notes } = this.form.value;
 
     const request = {
       coinId: coin.id,
@@ -107,6 +108,7 @@ export class NewTransactionComponent implements OnInit {
       type,
       quantity: parseFloat(quantity),
       priceUsd: parseFloat(priceUsd),
+      feeUsd: parseFloat(feeUsd ?? 0),
       date: new Date(date).toISOString().slice(0, 19),
       notes
     };

@@ -49,4 +49,15 @@ export class Auth {
       }
     });
   }
+  loginDemo() {
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.authService.loginDemo().subscribe({
+      next: () => this.router.navigate(['/dashboard']),
+      error: (err) => {
+        this.errorMessage = err.error?.error || 'Error al acceder a la demo';
+        this.isLoading = false;
+      }
+    });
+  }
 }

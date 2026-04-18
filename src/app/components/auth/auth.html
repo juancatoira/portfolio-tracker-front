@@ -49,6 +49,13 @@
           <span>{{ isLogin ? 'Entrar' : 'Registrarse' }}</span>
         }
       </button>
+      <div class="divider">
+        <span>o</span>
+      </div>
+
+      <button type="button" class="btn-demo" [disabled]="isLoading" (click)="loginDemo()">
+        Iniciar demo
+      </button>
 
     </form>
 

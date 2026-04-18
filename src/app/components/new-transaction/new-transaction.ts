@@ -29,6 +29,8 @@ export class NewTransactionComponent implements OnInit {
   errorMessage = signal('');
   searchQuery = signal('');
   showDropdown = signal(false);
+  useMarketPrice = signal(false);
+  isFetchingPrice = signal(false);
 
   private searchSubject = new Subject<string>();
 
@@ -63,6 +65,24 @@ export class NewTransactionComponent implements OnInit {
         this.isSearching.set(false);
       }
     });
+  }
+
+  onDateChange(event: Event) {
+    const date = (event.target as HTMLInputElement).value;
+    this.form.get('date')?.setValue(date);
+    if (this.useMarketPrice() && this.selectedCoin()) {
+      this.fetchHistoricalPrice(date);
+    }
+  }
+
+  onUseMarketPriceChange(checked: boolean) {
+    this.useMarketPrice.set(checked);
+    if (checked && this.selectedCoin() && this.form.get('date')?.value) {
+      const date = this.form.get('date')?.value.slice(0, 10);
+      this.fetchHistoricalPrice(date);
+    } else if (!checked) {
+      this.form.get('priceUsd')?.enable();
+    }
   }
 
   onSearchInput(event: Event) {
@@ -128,4 +148,27 @@ export class NewTransactionComponent implements OnInit {
   close() {
     this.closed.emit(false);
   }
+
+  fetchHistoricalPrice(dateTime: string) {
+    const coin = this.selectedCoin();
+    if (!coin) return;
+
+    const date = dateTime.slice(0, 10);
+    this.isFetchingPrice.set(true);
+    this.form.get('priceUsd')?.disable();
+
+    this.portfolioService.getHistoricalPrice(coin.id, date).subscribe({
+      next: (res) => {
+        if (res.price) {
+          this.form.get('priceUsd')?.setValue(res.price);
+        }
+        this.isFetchingPrice.set(false);
+      },
+      error: () => {
+        this.form.get('priceUsd')?.enable();
+        this.isFetchingPrice.set(false);
+      }
+    });
+  }
+
 }

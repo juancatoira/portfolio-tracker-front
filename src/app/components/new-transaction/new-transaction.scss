@@ -142,6 +142,35 @@
   }
 }
 
+.market-price-check {
+  .check-label {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--color-primary);
+      cursor: pointer;
+    }
+
+    &:hover { color: var(--color-text-primary); }
+  }
+}
+
+.fetching {
+  font-size: 0.7rem;
+  color: var(--color-primary);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-left: 0.5rem;
+}
+
 form {
   display: flex;
   flex-direction: column;

@@ -49,4 +49,9 @@ export class PortfolioService {
   getDashboardTransactions() {
     return this.http.get<Transaction[]>(`${this.apiUrl}/dashboard/transactions`);
   }  
+
+  getHistoricalPrice(coinId: string, date: string) {
+    return this.http.get<any>(`${this.apiUrl}/coins/historical-price?coinId=${coinId}&date=${date}`);
+  }
+  
 }

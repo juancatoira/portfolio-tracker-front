@@ -110,8 +110,9 @@ export class NewTransactionComponent implements OnInit {
   }
 
   submit() {
-    if (this.form.invalid || !this.selectedCoin()) {
-      this.errorMessage.set('Completa todos los campos');
+    if (this.form.invalid && !this.useMarketPrice()) return;
+    if (!this.selectedCoin()) {
+      this.errorMessage.set('Selecciona una moneda');
       return;
     }
 
@@ -119,7 +120,7 @@ export class NewTransactionComponent implements OnInit {
     this.errorMessage.set('');
 
     const coin = this.selectedCoin()!;
-    const { type, quantity, priceUsd, feeUsd, date, notes } = this.form.value;
+    const { type, quantity, priceUsd, feeUsd, date, notes } = this.form.getRawValue();
 
     const request = {
       coinId: coin.id,
@@ -143,8 +144,7 @@ export class NewTransactionComponent implements OnInit {
         this.isSubmitting.set(false);
       }
     });
-  }
-
+  } 
   close() {
     this.closed.emit(false);
   }

@@ -235,38 +235,77 @@
     &:hover { background: var(--color-surface-raised); }
 
     @media (max-width: 768px) {
-      grid-template-columns: 1fr 1fr 40px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
       padding: 0.875rem 1rem;
-      gap: 0.5rem;
+      gap: 0.75rem;
     }
+  }
+}
+
+.coin-identity {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+
+  @media (max-width: 768px) { flex: 1; min-width: 0; }
+
+  .coin-image {
+    width: 28px; height: 28px;
+    border-radius: 50%; object-fit: contain; flex-shrink: 0;
+    @media (max-width: 768px) { width: 28px; height: 28px; }
+  }
+
+  div { min-width: 0; }
+
+  .coin-symbol {
+    font-size: 0.875rem; font-weight: 600;
+    color: var(--color-text-primary); display: block;
+    white-space: nowrap;
+  }
+
+  .coin-name {
+    font-size: 0.72rem;
+    color: var(--color-text-secondary); display: block;
+    white-space: nowrap;
   }
 }
 
 .position-values {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
-  align-items: flex-end;
+  gap: 0.25rem;
+  flex-shrink: 0;
 
-  @media (max-width: 768px) {
-    align-items: flex-end;
-  }
+  @media (max-width: 768px) { align-items: flex-end; }
 }
 
 .pnl-inline {
   display: flex;
-  gap: 0.4rem;
+  gap: 0.35rem;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 
   .cell-label {
-    font-size: 0.7rem;
-    color: var(--color-text-secondary);
+    font-size: 0.65rem;
+    color: var(--color-text-muted);
     text-transform: uppercase;
     letter-spacing: 0.04em;
+    flex-shrink: 0;
   }
 
-  .pnl-percent { font-size: 0.8rem; }
+  span {
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+  .pnl-percent {
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
 }
 
 .position-avg {
@@ -280,6 +319,11 @@
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }
+}
+
+.actions-cell {
+  position: relative;
+  flex-shrink: 0;
 }
 
 // Lista de transacciones

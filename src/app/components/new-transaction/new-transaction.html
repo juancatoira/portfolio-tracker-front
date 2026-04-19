@@ -104,12 +104,15 @@
           </div>
 
           <div class="market-price-check">
-            <label class="check-label">
-              <input
-                type="checkbox"
-                [checked]="useMarketPrice()"
-                (change)="onUseMarketPriceChange($any($event.target).checked)"
-              />
+            <label class="toggle-label">
+              <div class="toggle-track" [class.active]="useMarketPrice()">
+                <input
+                  type="checkbox"
+                  [checked]="useMarketPrice()"
+                  (change)="onUseMarketPriceChange($any($event.target).checked)"
+                />
+                <span class="toggle-thumb"></span>
+              </div>
               <span>Usar precio de mercado de esa fecha</span>
             </label>
           </div>

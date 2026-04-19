@@ -126,147 +126,148 @@ toggleSells() {
 }
 
  renderLineChart() {
-    if (!this.lineCanvas || this.snapshots().length < 2) return;
-    if (this.lineChart) this.lineChart.destroy();
+  if (!this.lineCanvas || this.snapshots().length < 2) return;
+  if (this.lineChart) this.lineChart.destroy();
 
-    const snapshots = this.snapshots();
-    const transactions = this.transactions();
+  const snapshots = this.snapshots();
+  const transactions = this.transactions();
 
-    const firstDate = new Date(snapshots[0].timestamp).toLocaleDateString('es-ES');
-    const lastDate = new Date(snapshots[snapshots.length - 1].timestamp).toLocaleDateString('es-ES');
-    const sameDay = firstDate === lastDate;
-
-    const labels = snapshots.map((s, i) => {
-      const date = new Date(s.timestamp);
-      if (sameDay) {
-        return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-      }
-      const prevDate = i > 0 ? new Date(snapshots[i-1].timestamp).toLocaleDateString('es-ES') : null;
-      const currentDate = date.toLocaleDateString('es-ES');
-      if (i === 0 || currentDate !== prevDate) {
-        return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
-      }
-      return '';
+  // Agrupar snapshots por día y hacer media
+  const byDay = new Map<string, number[]>();
+  snapshots.forEach(s => {
+    const day = new Date(s.timestamp).toLocaleDateString('es-ES', {
+      day: '2-digit', month: 'short'
     });
+    if (!byDay.has(day)) byDay.set(day, []);
+    byDay.get(day)!.push(s.totalValueUsd);
+  });
 
-    const data = snapshots.map(s => s.totalValueUsd);
+  // Media por día
+  const dailyData = Array.from(byDay.entries()).map(([day, values]) => ({
+    label: day,
+    value: values.reduce((a, b) => a + b, 0) / values.length
+  }));
 
-    // Calculamos marcadores de compras y ventas
-    const buyPoints = data.map((v, i) => {
-      if (!this.showBuys()) return null;
-      const snapshotTime = new Date(snapshots[i].timestamp).getTime();
-      const prevTime = i > 0 ? new Date(snapshots[i-1].timestamp).getTime() : 0;
-      const hasBuy = transactions.some(tx => {
-        const txTime = new Date(tx.date).getTime();
-        return (tx.type === 'BUY' || tx.type === 'MANUAL') &&
-              txTime >= prevTime && txTime < snapshotTime;
+  const labels = dailyData.map(d => d.label);
+  const data = dailyData.map(d => d.value);
+
+  // Marcadores de compras y ventas
+  const buyPoints = data.map((v, i) => {
+    if (!this.showBuys()) return null;
+    const label = labels[i];
+    const hasBuy = transactions.some(tx => {
+      const txDay = new Date(tx.date).toLocaleDateString('es-ES', {
+        day: '2-digit', month: 'short'
       });
-      return hasBuy ? v : null;
+      return (tx.type === 'BUY' || tx.type === 'MANUAL') && txDay === label;
     });
+    return hasBuy ? v : null;
+  });
 
-    const sellPoints = data.map((v, i) => {
-      if (!this.showSells()) return null;
-      const snapshotTime = new Date(snapshots[i].timestamp).getTime();
-      const prevTime = i > 0 ? new Date(snapshots[i-1].timestamp).getTime() : 0;
-      const hasSell = transactions.some(tx => {
-        const txTime = new Date(tx.date).getTime();
-        return tx.type === 'SELL' && txTime >= prevTime && txTime < snapshotTime;
+  const sellPoints = data.map((v, i) => {
+    if (!this.showSells()) return null;
+    const label = labels[i];
+    const hasSell = transactions.some(tx => {
+      const txDay = new Date(tx.date).toLocaleDateString('es-ES', {
+        day: '2-digit', month: 'short'
       });
-      return hasSell ? v : null;
+      return tx.type === 'SELL' && txDay === label;
     });
+    return hasSell ? v : null;
+  });
 
-    this.lineChart = new Chart(this.lineCanvas.nativeElement, {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'Valor',
-            data,
-            borderColor: '#06b6d4',
-            backgroundColor: 'rgba(6,182,212,0.08)',
-            borderWidth: 2,
-            pointRadius: 0,
-            pointHoverRadius: 4,
-            pointHoverBackgroundColor: '#06b6d4',
-            fill: true,
-            tension: 0.4,
-            order: 3
-          },
-          {
-            label: 'Compras',
-            data: buyPoints,
-            borderColor: 'transparent',
-            backgroundColor: '#10b981',
-            pointRadius: 6,
-            pointHoverRadius: 8,
-            pointStyle: 'triangle',
-            pointBackgroundColor: '#10b981',
-            showLine: false,
-            order: 1
-          },
-          {
-            label: 'Ventas',
-            data: sellPoints,
-            borderColor: 'transparent',
-            backgroundColor: '#f43f5e',
-            pointRadius: 6,
-            pointHoverRadius: 8,
-            pointStyle: 'triangle',
-            pointRotation: 180,
-            pointBackgroundColor: '#f43f5e',
-            showLine: false,
-            order: 2
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: '#151821',
-            borderColor: '#2d3f55',
-            borderWidth: 1,
-            titleColor: '#64748b',
-            bodyColor: '#e2e8f0',
-            padding: 12,
-            displayColors: true,
-            filter: (item) => item.parsed.y !== null,
-            callbacks: {
-              label: (ctx) => {
-                if (ctx.dataset.label === 'Compras') return '  ▲ Compra';
-                if (ctx.dataset.label === 'Ventas') return '  ▼ Venta';
-                return `  ${this.formatCurrency(ctx.parsed.y ?? 0)}`;
-              }
-            }
-          }
+  this.lineChart = new Chart(this.lineCanvas.nativeElement, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Valor',
+          data,
+          borderColor: '#06b6d4',
+          backgroundColor: 'rgba(6,182,212,0.08)',
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          pointHoverBackgroundColor: '#06b6d4',
+          fill: true,
+          tension: 0.4,
+          order: 3
         },
-        scales: {
-          x: {
-            grid: { color: '#1e293b' },
-            ticks: {
-              color: '#64748b',
-              font: { family: 'Inter', size: 11 },
-              maxRotation: 0,
-              autoSkip: true,
-              maxTicksLimit: sameDay ? 8 : 7
-            }
-          },
-          y: {
-            grid: { color: '#1e293b' },
-            ticks: {
-              color: '#64748b',
-              font: { family: 'Inter', size: 11 },
-              callback: (value) => `$${Number(value).toLocaleString()}`
+        {
+          label: 'Compras',
+          data: buyPoints,
+          borderColor: 'transparent',
+          backgroundColor: '#10b981',
+          pointRadius: 6,
+          pointHoverRadius: 8,
+          pointStyle: 'triangle',
+          pointBackgroundColor: '#10b981',
+          showLine: false,
+          order: 1
+        },
+        {
+          label: 'Ventas',
+          data: sellPoints,
+          borderColor: 'transparent',
+          backgroundColor: '#f43f5e',
+          pointRadius: 6,
+          pointHoverRadius: 8,
+          pointStyle: 'triangle',
+          pointRotation: 180,
+          pointBackgroundColor: '#f43f5e',
+          showLine: false,
+          order: 2
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#151821',
+          borderColor: '#2d3f55',
+          borderWidth: 1,
+          titleColor: '#64748b',
+          bodyColor: '#e2e8f0',
+          padding: 12,
+          displayColors: true,
+          filter: (item) => item.parsed.y !== null,
+          callbacks: {
+            label: (ctx) => {
+              if (ctx.dataset.label === 'Compras') return '  ▲ Compra';
+              if (ctx.dataset.label === 'Ventas') return '  ▼ Venta';
+              return `  ${this.formatCurrency(ctx.parsed.y ?? 0)}`;
             }
           }
         }
+      },
+      scales: {
+        x: {
+          grid: { color: '#1e293b' },
+          ticks: {
+            color: '#64748b',
+            font: { family: 'Inter', size: 11 },
+            maxRotation: 0,
+            autoSkip: true,
+            maxTicksLimit: 8
+          }
+        },
+        y: {
+          grid: { color: '#1e293b' },
+          ticks: {
+            color: '#64748b',
+            font: { family: 'Inter', size: 11 },
+            callback: (value) => `$${Number(value).toLocaleString()}`
+          }
+        }
       }
-    } as ChartConfiguration);
-  }
+    }
+  } as ChartConfiguration);
+}
 
   refreshPrices() {
     this.isRefreshing.set(true);
@@ -298,7 +299,8 @@ toggleSells() {
   }
 
   formatNewsDate(date: string): string {
-    return new Date(date).toLocaleDateString('es-ES', {
+    const timestamp = parseInt(date) * 1000; // convertir a milisegundos
+    return new Date(timestamp).toLocaleDateString('es-ES', {
       day: '2-digit', month: 'short',
       hour: '2-digit', minute: '2-digit'
     });

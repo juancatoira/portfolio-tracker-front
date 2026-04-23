@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Chart, ChartConfiguration, ArcElement, Tooltip, Legend, DoughnutController } from 'chart.js';
 import { PortfolioService } from '../../services/portfolio';
 import { AuthService } from '../../services/auth';
+import { ExchangeRateService } from '../../services/exchange-rate';
 import { Position, Transaction } from '../../models/transaction.models';
 import { NewTransactionComponent } from '../new-transaction/new-transaction';
 import { Navbar} from '../navbar/navbar';
@@ -21,6 +22,7 @@ export class Portfolio implements OnInit, AfterViewInit {
 
 @ViewChild('chartCanvas', { static: false }) chartCanvas!: ElementRef<HTMLCanvasElement>;
  
+  private exchangeRateService = inject(ExchangeRateService);
   private portfolioService = inject(PortfolioService);
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -206,11 +208,8 @@ filteredTransactions = computed(() => {
   }
 
   formatCurrency(value: number): string {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2
-    }).format(value);
+    this.exchangeRateService.activeCurrency(); // fuerza dependencia del signal
+    return this.exchangeRateService.format(value);
   }
 
   formatDate(date: string): string {

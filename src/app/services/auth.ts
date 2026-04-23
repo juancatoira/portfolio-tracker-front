@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, tap } from 'rxjs';
 import { AuthResponse } from '../models/auth.models';
 import { environment } from '../../environments/environment';
+import { ExchangeRateService } from './exchange-rate';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -11,6 +12,7 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
   private apiUrl = `${environment.apiUrl}/auth`;
+  private exchangeRateService = inject(ExchangeRateService);
 
   private currentUserSubject = new BehaviorSubject<AuthResponse | null>(
     this.getUserFromStorage()
@@ -45,7 +47,8 @@ export class AuthService {
     localStorage.setItem('token', response.token);
     localStorage.setItem('user', JSON.stringify(response));
     this.currentUserSubject.next(response);
-  }
+    this.exchangeRateService.setCurrency(response.currency ?? 'USD');
+  } 
 
   private getUserFromStorage(): AuthResponse | null {
     const user = localStorage.getItem('user');

@@ -11,6 +11,9 @@
           @if (lastUpdated()) {
             <span>Actualizado: {{ lastUpdated() }}</span>
           }
+          <button class="btn-currency" (click)="toggleCurrency()">
+            {{ activeCurrency() }} ⇄ {{ activeCurrency() === 'USD' ? (activeSymbol()) : '$' }}
+          </button>
           <button class="btn-refresh" (click)="refreshPrices()" [disabled]="isRefreshing()">
             {{ isRefreshing() ? 'Actualizando...' : '↻ Actualizar precios' }}
           </button>

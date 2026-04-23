@@ -13,6 +13,7 @@
     @if (currentUser$ | async; as user) {
       <span class="user-email">{{ user.email }}</span>
     }
+    <button class="btn-profile" (click)="navigateTo('/profile')">Perfil</button>
     <button class="btn-logout" (click)="logout()">Salir</button>
   </div>
 </nav>
@@ -37,6 +38,13 @@
       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
     </svg>
     <span>Watchlist</span>
+  </button>
+  <button class="bottom-nav-item" [class.active]="isActive('/profile')" (click)="navigateTo('/profile')">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+      <circle cx="12" cy="7" r="4"/>
+    </svg>
+    <span>Perfil</span>
   </button>
   <button class="bottom-nav-item" (click)="logout()">
     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">

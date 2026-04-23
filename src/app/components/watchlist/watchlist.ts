@@ -9,6 +9,7 @@ import { AuthService } from '../../services/auth';
 import { WatchlistItem } from '../../models/watchlist.models';
 import { Coin } from '../../models/coin.models';
 import { Navbar } from '../navbar/navbar';
+import { ExchangeRateService } from '../../services/exchange-rate';
 
 
 Chart.register(LineElement, PointElement, LinearScale, Filler, Tooltip, LineController, CategoryScale);
@@ -24,6 +25,7 @@ export class Watchlist implements OnInit {
 
   @ViewChildren('sparklineCanvas') sparklineCanvases!: QueryList<ElementRef<HTMLCanvasElement>>;
 
+  private exchangeRateService = inject(ExchangeRateService) ;
   private watchlistService = inject(WatchlistService);
   private coinService = inject(CoinService);
   private authService = inject(AuthService);
@@ -42,6 +44,7 @@ export class Watchlist implements OnInit {
   private searchSubject = new Subject<string>();
   private sparklineCharts: Map<string, Chart> = new Map();
   private detailChart: Chart | null = null;
+  
 
   ngOnInit() {
     this.loadWatchlist();
@@ -258,7 +261,8 @@ export class Watchlist implements OnInit {
   }
 
   formatCurrency(value: number): string {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(value);
+    this.exchangeRateService.activeCurrency(); // fuerza dependencia del signal
+    return this.exchangeRateService.format(value);
   }
 
   formatLargeNumber(value: number): string {

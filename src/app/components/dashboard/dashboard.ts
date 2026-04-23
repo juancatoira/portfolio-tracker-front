@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Chart, ChartConfiguration, LineElement, PointElement, LinearScale, Filler, Tooltip, LineController, CategoryScale } from 'chart.js';
 import { PortfolioService } from '../../services/portfolio';
+import { ExchangeRateService } from '../../services/exchange-rate';
 import { AuthService } from '../../services/auth';
 import { Position,Transaction } from '../../models/transaction.models';
 import { Snapshot, NewsItem } from '../../models/dashboard.models';
@@ -23,6 +24,7 @@ export class Dashboard implements OnInit {
 
   @ViewChild('lineCanvas', { static: false }) lineCanvas!: ElementRef<HTMLCanvasElement>;
 
+  private exchangeRateService = inject(ExchangeRateService);
   private portfolioService = inject(PortfolioService);
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -39,7 +41,8 @@ export class Dashboard implements OnInit {
   showSells = signal(true);
   
   currentUser$ = this.authService.currentUser$;
-
+  activeCurrency = this.exchangeRateService.activeCurrency;
+  activeSymbol = computed(() => this.exchangeRateService.getSymbol());
 
   private lineChart: Chart | null = null;
 
@@ -72,6 +75,18 @@ export class Dashboard implements OnInit {
       p.pnlPercent < worst.pnlPercent ? p : worst
     );
   });
+
+  currencyLabel = computed(() => {
+    const currency = this.exchangeRateService.activeCurrency();
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const preferred = user.currency ?? 'USD';
+    return currency === 'USD' && preferred !== 'USD'
+      ? `USD → ${preferred}`
+      : currency;
+  });
+
+
+totalPnlPercentDisplay = computed(() => this.formatPercent(this.totalPnlPercent()));
 
   ngOnInit() {
     this.loadAll();
@@ -291,7 +306,8 @@ toggleSells() {
   logout() { this.authService.logout(); }
 
   formatCurrency(value: number): string {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(value);
+    this.exchangeRateService.activeCurrency(); // fuerza dependencia del signal
+    return this.exchangeRateService.format(value);
   }
 
   formatPercent(value: number): string {
@@ -307,4 +323,12 @@ toggleSells() {
   }
 
   isPnlPositive(value: number): boolean { return value >= 0; }
+
+  toggleCurrency() {
+    const current = this.exchangeRateService.activeCurrency();
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const preferred = user.currency ?? 'USD';
+    const next = current === 'USD' ? preferred : 'USD';
+    this.exchangeRateService.setCurrency(next);
+  }
 }

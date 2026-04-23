@@ -100,3 +100,14 @@
 
   .nav-icon { width: 22px; height: 22px; }
 }
+
+.btn-profile {
+  background: none; border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-size: 0.8rem; font-family: 'Inter', sans-serif;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer; transition: all 0.15s; white-space: nowrap;
+
+  &:hover { border-color: var(--color-primary); color: var(--color-primary); }
+}

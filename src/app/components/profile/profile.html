@@ -1,0 +1,83 @@
+<div class="profile-page">
+  <app-navbar />
+
+  <main class="main-content">
+    <div class="page-header">
+      <h1>Perfil</h1>
+    </div>
+
+    @if (isLoadingProfile()) {
+      <div class="loading">Cargando...</div>
+    } @else {
+
+      <div class="profile-grid">
+
+        <!-- Datos del perfil -->
+        <div class="card">
+          <h2 class="card-title">Información personal</h2>
+          <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+
+            <div class="field">
+              <label>Nombre de usuario</label>
+              <input type="text" formControlName="username" placeholder="Tu nombre"/>
+            </div>
+
+            <div class="field">
+              <label>Moneda preferida</label>
+              <select formControlName="currency">
+                @for (entry of currencyEntries(); track entry[0]) {
+                  <option [value]="entry[0]">{{ entry[0] }} — {{ entry[1] }}</option>
+                }
+              </select>
+            </div>
+
+            @if (profileSuccess()) {
+              <div class="success-banner">{{ profileSuccess() }}</div>
+            }
+            @if (profileError()) {
+              <div class="error-banner">{{ profileError() }}</div>
+            }
+
+            <button type="submit" class="btn-primary" [disabled]="isSavingProfile()">
+              {{ isSavingProfile() ? 'Guardando...' : 'Guardar cambios' }}
+            </button>
+          </form>
+        </div>
+
+        <!-- Cambiar contraseña -->
+        <div class="card">
+          <h2 class="card-title">Cambiar contraseña</h2>
+          <form [formGroup]="passwordForm" (ngSubmit)="savePassword()">
+
+            <div class="field">
+              <label>Contraseña actual</label>
+              <input type="password" formControlName="currentPassword" placeholder="••••••••"/>
+            </div>
+
+            <div class="field">
+              <label>Nueva contraseña</label>
+              <input type="password" formControlName="newPassword" placeholder="Mínimo 8 caracteres"/>
+            </div>
+
+            <div class="field">
+              <label>Confirmar nueva contraseña</label>
+              <input type="password" formControlName="confirmPassword" placeholder="Repite la contraseña"/>
+            </div>
+
+            @if (passwordSuccess()) {
+              <div class="success-banner">{{ passwordSuccess() }}</div>
+            }
+            @if (passwordError()) {
+              <div class="error-banner">{{ passwordError() }}</div>
+            }
+
+            <button type="submit" class="btn-primary" [disabled]="isSavingPassword()">
+              {{ isSavingPassword() ? 'Guardando...' : 'Cambiar contraseña' }}
+            </button>
+          </form>
+        </div>
+
+      </div>
+    }
+  </main>
+</div>

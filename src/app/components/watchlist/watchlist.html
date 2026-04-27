@@ -81,7 +81,7 @@
                 </div>
 
                 <div class="price-cell">
-                  <span class="price">{{ formatCurrency(item.currentPriceUsd) }}</span>
+                  <span class="price">{{ item.currentPriceUsd | currencyFormat: activeCurrency() }}</span>
                   <div class="changes-row">
                     <span class="change-label">24h</span>
                     <span class="change-value"
@@ -110,8 +110,8 @@
                   {{ formatPercent(item.priceChangePercent7d) }}
                 </span>
 
-                <span class="cell desktop-only">{{ formatCurrency(item.high24h) }}</span>
-                <span class="cell desktop-only">{{ formatCurrency(item.low24h) }}</span>
+                <span class="cell desktop-only">{{ item.high24h | currencyFormat: activeCurrency() }}</span>
+                <span class="cell desktop-only">{{ item.low24h | currencyFormat: activeCurrency() }}</span>
                 <span class="cell desktop-only">{{ formatLargeNumber(item.marketCap) }}</span>
                 <span class="cell desktop-only">{{ formatLargeNumber(item.volume24h) }}</span>
 
@@ -150,7 +150,7 @@
               <span class="detail-coin-symbol">{{ selectedCoin()!.coinSymbol }}</span>
               <span class="detail-coin-name">{{ selectedCoin()!.coinName }}</span>
             </div>
-            <span class="detail-price">{{ formatCurrency(selectedCoin()!.currentPriceUsd) }}</span>
+            <span class="detail-price">{{ selectedCoin()!.currentPriceUsd | currencyFormat: activeCurrency() }}</span>
             <span class="detail-change"
               [class.positive]="isPositive(selectedCoin()!.priceChangePercent24h)"
               [class.negative]="!isPositive(selectedCoin()!.priceChangePercent24h)">
@@ -167,11 +167,11 @@
         <div class="detail-stats">
           <div class="stat">
             <span class="stat-label">Máx 24h</span>
-            <span class="stat-value">{{ formatCurrency(selectedCoin()!.high24h) }}</span>
+            <span class="stat-value">{{ selectedCoin()!.high24h | currencyFormat: activeCurrency() }}</span>
           </div>
           <div class="stat">
             <span class="stat-label">Mín 24h</span>
-            <span class="stat-value">{{ formatCurrency(selectedCoin()!.low24h) }}</span>
+            <span class="stat-value">{{ selectedCoin()!.low24h | currencyFormat: activeCurrency() }}</span>
           </div>
           <div class="stat">
             <span class="stat-label">7d</span>

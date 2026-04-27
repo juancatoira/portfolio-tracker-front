@@ -55,11 +55,11 @@
                     </div>
                 </div>
                 <div class="position-values">
-                    <span class="cell">{{ formatCurrency(position.currentValueUsd) }}</span>
+                    <span class="cell">{{ position.currentValueUsd | currencyFormat: activeCurrency() }}</span>
                     <div class="pnl-inline">
                         <span class="cell-label">P&L</span>
                         <span [class.positive]="isPnlPositive(position.pnlUsd)" [class.negative]="!isPnlPositive(position.pnlUsd)">
-                        {{ formatCurrency(position.pnlUsd) }}
+                        {{ position.pnlUsd | currencyFormat: activeCurrency() }}
                         </span>
                         <span class="pnl-percent" [class.positive]="isPnlPositive(position.pnlPercent)" [class.negative]="!isPnlPositive(position.pnlPercent)">
                         ({{ position.pnlPercent.toFixed(2) }}%)
@@ -68,11 +68,11 @@
                 </div>
                 <div class="position-avg desktop-only">
                     <span class="cell-label">Precio medio</span>
-                    <span class="cell">{{ formatCurrency(position.averagePriceUsd) }}</span>
+                    <span class="cell">{{ position.averagePriceUsd | currencyFormat: activeCurrency() }}</span>
                 </div>
                 <div class="position-avg desktop-only">
                     <span class="cell-label">Precio actual</span>
-                    <span class="cell">{{ formatCurrency(position.currentPriceUsd) }}</span>
+                    <span class="cell">{{ position.currentPriceUsd | currencyFormat: activeCurrency() }}</span>
                 </div>
                 <div class="actions-cell">
                     <button class="btn-menu" (click)="toggleMenu(position.coinId)">⋯</button>
@@ -129,8 +129,8 @@
                     </div>
                 </div>
                 <span class="tx-value">{{ tx.quantity }}</span>
-                <span class="tx-value">{{ formatCurrency(tx.priceUsd) }}</span>
-                <span class="tx-value tx-total-value">{{ formatCurrency(tx.quantity * tx.priceUsd) }}</span>
+                <span class="tx-value">{{ tx.priceUsd | currencyFormat: activeCurrency() }}</span>
+                <span class="tx-value tx-total-value">{{ tx.quantity * tx.priceUsd | currencyFormat: activeCurrency() }}</span>
                 <div class="tx-date-col">
                     <span class="tx-date">{{ formatDate(tx.date) }}</span>
                     @if (tx.notes) {
@@ -196,12 +196,12 @@
         </div>
         <div class="tx-modal-row">
           <span class="tx-modal-label">Precio unitario</span>
-          <span class="tx-modal-value">{{ formatCurrency(selectedTransaction()!.priceUsd) }}</span>
+          <span class="tx-modal-value">{{ selectedTransaction()!.priceUsd | currencyFormat: activeCurrency() }}</span>
         </div>
         <div class="tx-modal-row">
           <span class="tx-modal-label">Total operación</span>
           <span class="tx-modal-value tx-modal-total">
-            {{ formatCurrency(selectedTransaction()!.quantity * selectedTransaction()!.priceUsd) }}
+            {{ selectedTransaction()!.quantity * selectedTransaction()!.priceUsd | currencyFormat: activeCurrency() }}
           </span>
         </div>
         <div class="tx-modal-row">
@@ -217,12 +217,12 @@
         @if (selectedTransaction()!.feeUsd > 0) {
           <div class="tx-modal-row">
             <span class="tx-modal-label">Comisión</span>
-            <span class="tx-modal-value">{{ formatCurrency(selectedTransaction()!.feeUsd) }}</span>
+            <span class="tx-modal-value">{{ selectedTransaction()!.feeUsd | currencyFormat: activeCurrency() }}</span>
           </div>
           <div class="tx-modal-row">
             <span class="tx-modal-label">Coste total</span>
             <span class="tx-modal-value tx-modal-total">
-              {{ formatCurrency(selectedTransaction()!.quantity * selectedTransaction()!.priceUsd + selectedTransaction()!.feeUsd) }}
+              {{ selectedTransaction()!.quantity * selectedTransaction()!.priceUsd + selectedTransaction()!.feeUsd | currencyFormat: activeCurrency() }}
             </span>
           </div>
         }

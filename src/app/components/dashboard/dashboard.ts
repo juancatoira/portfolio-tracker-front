@@ -9,6 +9,7 @@ import { Position,Transaction } from '../../models/transaction.models';
 import { Snapshot, NewsItem } from '../../models/dashboard.models';
 import { NewTransactionComponent } from '../new-transaction/new-transaction';
 import { Navbar } from '../navbar/navbar';
+import { CurrencyFormatPipe } from '../../pipes/currency-format.pipe';
 
 
 Chart.register(LineElement, PointElement, LinearScale, Filler, Tooltip, LineController, CategoryScale);
@@ -16,7 +17,7 @@ Chart.register(LineElement, PointElement, LinearScale, Filler, Tooltip, LineCont
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, Navbar,CommonModule, NewTransactionComponent],
+  imports: [CommonModule, Navbar, NewTransactionComponent, CurrencyFormatPipe],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })
@@ -255,7 +256,7 @@ toggleSells() {
             label: (ctx) => {
               if (ctx.dataset.label === 'Compras') return '  ▲ Compra';
               if (ctx.dataset.label === 'Ventas') return '  ▼ Venta';
-              return `  ${this.formatCurrency(ctx.parsed.y ?? 0)}`;
+              return `  ${this.exchangeRateService.format(ctx.parsed.y ?? 0)}`;
             }
           }
         }
@@ -304,11 +305,6 @@ toggleSells() {
 
   navigateTo(route: string) { this.router.navigate([route]); }
   logout() { this.authService.logout(); }
-
-  formatCurrency(value: number): string {
-    this.exchangeRateService.activeCurrency(); // fuerza dependencia del signal
-    return this.exchangeRateService.format(value);
-  }
 
   formatPercent(value: number): string {
     return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;

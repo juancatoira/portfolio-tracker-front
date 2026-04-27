@@ -1,5 +1,8 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
+import { tap, catchError, map } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class ExchangeRateService {
@@ -17,12 +20,17 @@ export class ExchangeRateService {
     JSON.parse(localStorage.getItem('user') || '{}')?.currency ?? 'USD'
   );
 
-  loadRates() {
-    return this.http.get<any>(
-      'https://api.frankfurter.app/latest?from=USD&to=EUR,GBP,JPY,CHF,CAD,AUD,MXN'
-    ).subscribe({
-      next: (res) => this.rates.set({ USD: 1, ...res.rates })
-    });
+  loadRates(): Observable<void> {
+    return this.http.get<{ currency: string; symbol: string; rates: Record<string, number> }>(
+      `${environment.apiUrl}/profile/exchange-rates`
+    ).pipe(
+      tap(res => {
+        this.rates.set(res.rates);
+        this.activeCurrency.set(res.currency);
+      }),
+      catchError(() => of(null)),
+      map(() => undefined)
+    );
   }
 
   setCurrency(currency: string) {

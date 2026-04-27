@@ -8,13 +8,14 @@ import { ExchangeRateService } from '../../services/exchange-rate';
 import { Position, Transaction } from '../../models/transaction.models';
 import { NewTransactionComponent } from '../new-transaction/new-transaction';
 import { Navbar} from '../navbar/navbar';
+import { CurrencyFormatPipe } from '../../pipes/currency-format.pipe';
 
 Chart.register(ArcElement, Tooltip, Legend, DoughnutController);
 
 @Component({
   selector: 'app-portfolio',
   standalone: true,
-  imports: [Navbar, CommonModule, NewTransactionComponent],
+  imports: [Navbar, CommonModule, NewTransactionComponent, CurrencyFormatPipe],
   templateUrl: './portfolio.html',
   styleUrl: './portfolio.scss'
 })
@@ -26,6 +27,8 @@ export class Portfolio implements OnInit, AfterViewInit {
   private portfolioService = inject(PortfolioService);
   private authService = inject(AuthService);
   private router = inject(Router);
+
+  activeCurrency = this.exchangeRateService.activeCurrency;
 
   positions = signal<Position[]>([]);
   transactions = signal<Transaction[]>([]);
@@ -205,11 +208,6 @@ filteredTransactions = computed(() => {
 
   logout() {
     this.authService.logout();
-  }
-
-  formatCurrency(value: number): string {
-    this.exchangeRateService.activeCurrency(); // fuerza dependencia del signal
-    return this.exchangeRateService.format(value);
   }
 
   formatDate(date: string): string {

@@ -29,16 +29,16 @@
       <div class="metrics-grid">
         <div class="metric-card">
           <span class="metric-label">Valor total</span>
-          <span class="metric-value">{{ formatCurrency(totalValue()) }}</span>
+          <span class="metric-value">{{ totalValue() | currencyFormat: activeCurrency() }}</span>
         </div>
         <div class="metric-card">
           <span class="metric-label">Total invertido</span>
-          <span class="metric-value">{{ formatCurrency(totalInvested()) }}</span>
+          <span class="metric-value">{{ totalInvested() | currencyFormat: activeCurrency() }}</span>
         </div>
         <div class="metric-card">
           <span class="metric-label">P&L total</span>
           <span class="metric-value" [class.positive]="isPnlPositive(totalPnl())" [class.negative]="!isPnlPositive(totalPnl())">
-            {{ formatCurrency(totalPnl()) }}
+            {{ totalPnl() | currencyFormat: activeCurrency() }}
           </span>
         </div>
         <div class="metric-card">

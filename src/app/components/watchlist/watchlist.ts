@@ -10,6 +10,7 @@ import { WatchlistItem } from '../../models/watchlist.models';
 import { Coin } from '../../models/coin.models';
 import { Navbar } from '../navbar/navbar';
 import { ExchangeRateService } from '../../services/exchange-rate';
+import { CurrencyFormatPipe } from '../../pipes/currency-format.pipe';
 
 
 Chart.register(LineElement, PointElement, LinearScale, Filler, Tooltip, LineController, CategoryScale);
@@ -17,7 +18,7 @@ Chart.register(LineElement, PointElement, LinearScale, Filler, Tooltip, LineCont
 @Component({
   selector: 'app-watchlist',
   standalone: true,
-  imports: [Navbar, CommonModule],
+  imports: [Navbar, CommonModule, CurrencyFormatPipe],
   templateUrl: './watchlist.html',
   styleUrl: './watchlist.scss'
 })
@@ -25,8 +26,10 @@ export class Watchlist implements OnInit {
 
   @ViewChildren('sparklineCanvas') sparklineCanvases!: QueryList<ElementRef<HTMLCanvasElement>>;
 
-  private exchangeRateService = inject(ExchangeRateService) ;
+  private exchangeRateService = inject(ExchangeRateService);
   private watchlistService = inject(WatchlistService);
+
+  activeCurrency = this.exchangeRateService.activeCurrency;
   private coinService = inject(CoinService);
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -190,7 +193,7 @@ export class Watchlist implements OnInit {
             padding: 10,
             displayColors: false,
             callbacks: {
-              label: (ctx) => `  ${this.formatCurrency(ctx.parsed.y ?? 0)}`
+              label: (ctx) => `  ${this.exchangeRateService.format(ctx.parsed.y ?? 0)}`
             }
           }
         },
@@ -260,15 +263,10 @@ export class Watchlist implements OnInit {
     return this.watchlist().some(w => w.coinId === coinId);
   }
 
-  formatCurrency(value: number): string {
-    this.exchangeRateService.activeCurrency(); // fuerza dependencia del signal
-    return this.exchangeRateService.format(value);
-  }
-
   formatLargeNumber(value: number): string {
     if (value >= 1_000_000_000) return `$${(value / 1_000_000_000).toFixed(2)}B`;
     if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(2)}M`;
-    return this.formatCurrency(value);
+    return this.exchangeRateService.format(value);
   }
 
   formatPercent(value: number): string {

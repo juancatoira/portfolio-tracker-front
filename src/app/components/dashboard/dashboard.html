@@ -3,7 +3,6 @@
   <app-navbar />
 
   <main class="main-content">
-
     <div class="page-header">
       <h1>Dashboard</h1>
       <div class="header-actions">
@@ -11,8 +10,11 @@
           @if (lastUpdated()) {
             <span>Actualizado: {{ lastUpdated() }}</span>
           }
-          <button class="btn-currency" (click)="toggleCurrency()">
-            {{ activeCurrency() }} ⇄ {{ activeCurrency() === 'USD' ? (activeSymbol()) : '$' }}
+          <button 
+            class="btn-currency" 
+            (click)="toggleCurrency()"
+            [disabled]="isTogglingCurrency()">
+            {{ currencyToggleLabel() }}
           </button>
           <button class="btn-refresh" (click)="refreshPrices()" [disabled]="isRefreshing()">
             {{ isRefreshing() ? 'Actualizando...' : '↻ Actualizar precios' }}
@@ -29,16 +31,16 @@
       <div class="metrics-grid">
         <div class="metric-card">
           <span class="metric-label">Valor total</span>
-          <span class="metric-value">{{ totalValue() | currencyFormat: activeCurrency() }}</span>
+          <span class="metric-value">{{ totalValueDisplay() }}</span>
         </div>
         <div class="metric-card">
           <span class="metric-label">Total invertido</span>
-          <span class="metric-value">{{ totalInvested() | currencyFormat: activeCurrency() }}</span>
+          <span class="metric-value">{{ totalInvestedDisplay() }}</span>
         </div>
         <div class="metric-card">
           <span class="metric-label">P&L total</span>
-          <span class="metric-value" [class.positive]="isPnlPositive(totalPnl())" [class.negative]="!isPnlPositive(totalPnl())">
-            {{ totalPnl() | currencyFormat: activeCurrency() }}
+              <span class="metric-value" [class.positive]="isPnlPositive(totalPnl())" [class.negative]="!isPnlPositive(totalPnl())">
+              <span class="metric-value" ...>{{ totalPnlDisplay() }}</span>
           </span>
         </div>
         <div class="metric-card">

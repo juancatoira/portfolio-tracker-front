@@ -19,6 +19,7 @@ export class ProfileService {
   updateProfile(request: UpdateProfileRequest) {
     return this.http.put<ProfileResponse>(`${this.apiUrl}/profile`, request).pipe(
       tap(res => {
+        this.exchangeRateService.setPreferredCurrency(res.currency);
         this.exchangeRateService.setCurrency(res.currency);
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         localStorage.setItem('user', JSON.stringify({

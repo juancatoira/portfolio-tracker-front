@@ -47,6 +47,7 @@ export class AuthService {
     localStorage.setItem('token', response.token);
     localStorage.setItem('user', JSON.stringify(response));
     this.currentUserSubject.next(response);
+    this.exchangeRateService.setPreferredCurrency(response.currency ?? 'USD');
     this.exchangeRateService.setCurrency(response.currency ?? 'USD');
   } 
 

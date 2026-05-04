@@ -5,19 +5,17 @@ import { Chart, ChartConfiguration, LineElement, PointElement, LinearScale, Fill
 import { PortfolioService } from '../../services/portfolio';
 import { ExchangeRateService } from '../../services/exchange-rate';
 import { AuthService } from '../../services/auth';
-import { Position,Transaction } from '../../models/transaction.models';
+import { Position, Transaction } from '../../models/transaction.models';
 import { Snapshot, NewsItem } from '../../models/dashboard.models';
 import { NewTransactionComponent } from '../new-transaction/new-transaction';
 import { Navbar } from '../navbar/navbar';
-import { CurrencyFormatPipe } from '../../pipes/currency-format.pipe';
-
 
 Chart.register(LineElement, PointElement, LinearScale, Filler, Tooltip, LineController, CategoryScale);
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, Navbar, NewTransactionComponent, CurrencyFormatPipe],
+  imports: [CommonModule, Navbar, NewTransactionComponent],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })
@@ -40,13 +38,15 @@ export class Dashboard implements OnInit {
   transactions = signal<Transaction[]>([]);
   showBuys = signal(true);
   showSells = signal(true);
-  
-  currentUser$ = this.authService.currentUser$;
-  activeCurrency = this.exchangeRateService.activeCurrency;
-  activeSymbol = computed(() => this.exchangeRateService.getSymbol());
+  isTogglingCurrency = signal(false);
 
+  currentUser$ = this.authService.currentUser$;
   private lineChart: Chart | null = null;
 
+  // Signals del servicio de cambio
+  _state = this.exchangeRateService.conversionState;
+
+  // Métricas base (en USD)
   totalValue = computed(() =>
     this.positions().reduce((sum, p) => sum + p.currentValueUsd, 0)
   );
@@ -77,213 +77,234 @@ export class Dashboard implements OnInit {
     );
   });
 
-  currencyLabel = computed(() => {
-    const currency = this.exchangeRateService.activeCurrency();
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const preferred = user.currency ?? 'USD';
-    return currency === 'USD' && preferred !== 'USD'
-      ? `USD → ${preferred}`
-      : currency;
+  // Métricas formateadas — se recalculan cuando cambia la moneda o los rates
+  totalValueDisplay = computed(() => {
+    this._state();
+    return this.exchangeRateService.format(this.totalValue());
   });
 
+  totalInvestedDisplay = computed(() => {
+    this._state();
+    return this.exchangeRateService.format(this.totalInvested());
+  });
 
-totalPnlPercentDisplay = computed(() => this.formatPercent(this.totalPnlPercent()));
+  totalPnlDisplay = computed(() => {
+    this._state();
+    return this.exchangeRateService.format(this.totalPnl());
+  });
+
+  totalPnlPercentDisplay = computed(() => this.formatPercent(this.totalPnlPercent()));
+
+  formattedPositions = computed(() => {
+    this._state();
+    return this.positions().map(p => ({
+      ...p,
+      valueDisplay: this.exchangeRateService.format(p.currentValueUsd),
+      pnlDisplay: this.exchangeRateService.format(p.pnlUsd),
+      avgPriceDisplay: this.exchangeRateService.format(p.averagePriceUsd),
+      currentPriceDisplay: this.exchangeRateService.format(p.currentPriceUsd),
+    }));
+  });
+
+  currencyToggleLabel = computed(() => {
+    const { currency } = this._state();
+    const preferred = this.exchangeRateService.preferredCurrency();
+    if (currency === 'USD' && preferred !== 'USD') return `⇄ ${preferred}`;
+    return `⇄ USD`;
+  });
 
   ngOnInit() {
     this.loadAll();
   }
 
   loadAll() {
-  this.isLoading.set(true);
+    this.isLoading.set(true);
 
-  this.portfolioService.getPositions().subscribe({
-    next: (positions) => {
-      this.positions.set(positions);
-      this.isLoading.set(false);
-      setTimeout(() => this.renderLineChart(), 100);
-    }
-  });
-
-  this.portfolioService.getSnapshots(30).subscribe({
-    next: (snapshots) => {
-      this.snapshots.set(snapshots);
-      setTimeout(() => this.renderLineChart(), 100);
-    }
-  });
-
-  this.portfolioService.getDashboardTransactions().subscribe({
-    next: (txs) => {
-      this.transactions.set(txs);
-      setTimeout(() => this.renderLineChart(), 100);
-    }
-  });
-
-  this.portfolioService.getNews().subscribe({
-    next: (news) => this.news.set(news)
-  });
-
-  this.portfolioService.getLastUpdated().subscribe({
-    next: (res) => {
-      if (res.lastUpdated !== 'never') {
-        this.lastUpdated.set(new Date(res.lastUpdated).toLocaleString('es-ES'));
+    this.portfolioService.getPositions().subscribe({
+      next: (positions) => {
+        this.positions.set(positions);
+        this.isLoading.set(false);
+        setTimeout(() => this.renderLineChart(), 100);
       }
-    }
-  });
-}
-
-toggleBuys() {
-  this.showBuys.set(!this.showBuys());
-  this.renderLineChart();
-}
-
-toggleSells() {
-  this.showSells.set(!this.showSells());
-  this.renderLineChart();
-}
-
- renderLineChart() {
-  if (!this.lineCanvas || this.snapshots().length < 2) return;
-  if (this.lineChart) this.lineChart.destroy();
-
-  const snapshots = this.snapshots();
-  const transactions = this.transactions();
-
-  // Agrupar snapshots por día y hacer media
-  const byDay = new Map<string, number[]>();
-  snapshots.forEach(s => {
-    const day = new Date(s.timestamp).toLocaleDateString('es-ES', {
-      day: '2-digit', month: 'short'
     });
-    if (!byDay.has(day)) byDay.set(day, []);
-    byDay.get(day)!.push(s.totalValueUsd);
-  });
 
-  // Media por día
-  const dailyData = Array.from(byDay.entries()).map(([day, values]) => ({
-    label: day,
-    value: values.reduce((a, b) => a + b, 0) / values.length
-  }));
-
-  const labels = dailyData.map(d => d.label);
-  const data = dailyData.map(d => d.value);
-
-  // Marcadores de compras y ventas
-  const buyPoints = data.map((v, i) => {
-    if (!this.showBuys()) return null;
-    const label = labels[i];
-    const hasBuy = transactions.some(tx => {
-      const txDay = new Date(tx.date).toLocaleDateString('es-ES', {
-        day: '2-digit', month: 'short'
-      });
-      return (tx.type === 'BUY' || tx.type === 'MANUAL') && txDay === label;
+    this.portfolioService.getSnapshots(30).subscribe({
+      next: (snapshots) => {
+        this.snapshots.set(snapshots);
+        setTimeout(() => this.renderLineChart(), 100);
+      }
     });
-    return hasBuy ? v : null;
-  });
 
-  const sellPoints = data.map((v, i) => {
-    if (!this.showSells()) return null;
-    const label = labels[i];
-    const hasSell = transactions.some(tx => {
-      const txDay = new Date(tx.date).toLocaleDateString('es-ES', {
-        day: '2-digit', month: 'short'
-      });
-      return tx.type === 'SELL' && txDay === label;
+    this.portfolioService.getDashboardTransactions().subscribe({
+      next: (txs) => this.transactions.set(txs)
     });
-    return hasSell ? v : null;
-  });
 
-  this.lineChart = new Chart(this.lineCanvas.nativeElement, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        {
-          label: 'Valor',
-          data,
-          borderColor: '#06b6d4',
-          backgroundColor: 'rgba(6,182,212,0.08)',
-          borderWidth: 2,
-          pointRadius: 0,
-          pointHoverRadius: 4,
-          pointHoverBackgroundColor: '#06b6d4',
-          fill: true,
-          tension: 0.4,
-          order: 3
-        },
-        {
-          label: 'Compras',
-          data: buyPoints,
-          borderColor: 'transparent',
-          backgroundColor: '#10b981',
-          pointRadius: 6,
-          pointHoverRadius: 8,
-          pointStyle: 'triangle',
-          pointBackgroundColor: '#10b981',
-          showLine: false,
-          order: 1
-        },
-        {
-          label: 'Ventas',
-          data: sellPoints,
-          borderColor: 'transparent',
-          backgroundColor: '#f43f5e',
-          pointRadius: 6,
-          pointHoverRadius: 8,
-          pointStyle: 'triangle',
-          pointRotation: 180,
-          pointBackgroundColor: '#f43f5e',
-          showLine: false,
-          order: 2
+    this.portfolioService.getNews().subscribe({
+      next: (news) => this.news.set(news)
+    });
+
+    this.portfolioService.getLastUpdated().subscribe({
+      next: (res) => {
+        if (res.lastUpdated !== 'never') {
+          this.lastUpdated.set(new Date(res.lastUpdated).toLocaleString('es-ES'));
         }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#151821',
-          borderColor: '#2d3f55',
-          borderWidth: 1,
-          titleColor: '#64748b',
-          bodyColor: '#e2e8f0',
-          padding: 12,
-          displayColors: true,
-          filter: (item) => item.parsed.y !== null,
-          callbacks: {
-            label: (ctx) => {
-              if (ctx.dataset.label === 'Compras') return '  ▲ Compra';
-              if (ctx.dataset.label === 'Ventas') return '  ▼ Venta';
-              return `  ${this.exchangeRateService.format(ctx.parsed.y ?? 0)}`;
+      }
+    });
+  }
+
+  toggleBuys() {
+    this.showBuys.set(!this.showBuys());
+    this.renderLineChart();
+  }
+
+  toggleSells() {
+    this.showSells.set(!this.showSells());
+    this.renderLineChart();
+  }
+
+  toggleCurrency() {
+    if (this.isTogglingCurrency()) return;
+    this.exchangeRateService.toggleCurrency();
+    this.isTogglingCurrency.set(true);
+    setTimeout(() => this.isTogglingCurrency.set(false), 800);
+  }
+
+  renderLineChart() {
+    if (!this.lineCanvas || this.snapshots().length < 2) return;
+    if (this.lineChart) this.lineChart.destroy();
+
+    const snapshots = this.snapshots();
+    const transactions = this.transactions();
+
+    const byDay = new Map<string, number[]>();
+    snapshots.forEach(s => {
+      const day = new Date(s.timestamp).toLocaleDateString('es-ES', {
+        day: '2-digit', month: 'short'
+      });
+      if (!byDay.has(day)) byDay.set(day, []);
+      byDay.get(day)!.push(s.totalValueUsd);
+    });
+
+    const dailyData = Array.from(byDay.entries()).map(([day, values]) => ({
+      label: day,
+      value: values.reduce((a, b) => a + b, 0) / values.length
+    }));
+
+    const labels = dailyData.map(d => d.label);
+    const data = dailyData.map(d => d.value);
+
+    const buyPoints = data.map((v, i) => {
+      if (!this.showBuys()) return null;
+      const label = labels[i];
+      const hasBuy = transactions.some(tx => {
+        const txDay = new Date(tx.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+        return (tx.type === 'BUY' || tx.type === 'MANUAL') && txDay === label;
+      });
+      return hasBuy ? v : null;
+    });
+
+    const sellPoints = data.map((v, i) => {
+      if (!this.showSells()) return null;
+      const label = labels[i];
+      const hasSell = transactions.some(tx => {
+        const txDay = new Date(tx.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+        return tx.type === 'SELL' && txDay === label;
+      });
+      return hasSell ? v : null;
+    });
+
+    this.lineChart = new Chart(this.lineCanvas.nativeElement, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Valor',
+            data,
+            borderColor: '#06b6d4',
+            backgroundColor: 'rgba(6,182,212,0.08)',
+            borderWidth: 2,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            pointHoverBackgroundColor: '#06b6d4',
+            fill: true,
+            tension: 0.4,
+            order: 3
+          },
+          {
+            label: 'Compras',
+            data: buyPoints,
+            borderColor: 'transparent',
+            backgroundColor: '#10b981',
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            pointStyle: 'triangle',
+            pointBackgroundColor: '#10b981',
+            showLine: false,
+            order: 1
+          },
+          {
+            label: 'Ventas',
+            data: sellPoints,
+            borderColor: 'transparent',
+            backgroundColor: '#f43f5e',
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            pointStyle: 'triangle',
+            pointRotation: 180,
+            pointBackgroundColor: '#f43f5e',
+            showLine: false,
+            order: 2
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#151821',
+            borderColor: '#2d3f55',
+            borderWidth: 1,
+            titleColor: '#64748b',
+            bodyColor: '#e2e8f0',
+            padding: 12,
+            displayColors: true,
+            filter: (item) => item.parsed.y !== null,
+            callbacks: {
+              label: (ctx) => {
+                if (ctx.dataset.label === 'Compras') return '  ▲ Compra';
+                if (ctx.dataset.label === 'Ventas') return '  ▼ Venta';
+                return `  ${this.exchangeRateService.format(ctx.parsed.y ?? 0)}`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: '#1e293b' },
+            ticks: {
+              color: '#64748b',
+              font: { family: 'Inter', size: 11 },
+              maxRotation: 0,
+              autoSkip: true,
+              maxTicksLimit: 8
+            }
+          },
+          y: {
+            grid: { color: '#1e293b' },
+            ticks: {
+              color: '#64748b',
+              font: { family: 'Inter', size: 11 },
+              callback: (value) => `$${Number(value).toLocaleString()}`
             }
           }
         }
-      },
-      scales: {
-        x: {
-          grid: { color: '#1e293b' },
-          ticks: {
-            color: '#64748b',
-            font: { family: 'Inter', size: 11 },
-            maxRotation: 0,
-            autoSkip: true,
-            maxTicksLimit: 8
-          }
-        },
-        y: {
-          grid: { color: '#1e293b' },
-          ticks: {
-            color: '#64748b',
-            font: { family: 'Inter', size: 11 },
-            callback: (value) => `$${Number(value).toLocaleString()}`
-          }
-        }
       }
-    }
-  } as ChartConfiguration);
-}
+    } as ChartConfiguration);
+  }
 
   refreshPrices() {
     this.isRefreshing.set(true);
@@ -311,7 +332,7 @@ toggleSells() {
   }
 
   formatNewsDate(date: string): string {
-    const timestamp = parseInt(date) * 1000; // convertir a milisegundos
+    const timestamp = parseInt(date) * 1000;
     return new Date(timestamp).toLocaleDateString('es-ES', {
       day: '2-digit', month: 'short',
       hour: '2-digit', minute: '2-digit'
@@ -319,12 +340,4 @@ toggleSells() {
   }
 
   isPnlPositive(value: number): boolean { return value >= 0; }
-
-  toggleCurrency() {
-    const current = this.exchangeRateService.activeCurrency();
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const preferred = user.currency ?? 'USD';
-    const next = current === 'USD' ? preferred : 'USD';
-    this.exchangeRateService.setCurrency(next);
-  }
 }
